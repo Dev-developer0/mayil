@@ -1,0 +1,1460 @@
+<!--
+  index1_firebase.html — Mayil Designer Studio (Firebase Edition)
+  Production-ready client website with Firebase Firestore + Storage
+  Features: responsive layout, admin panel (saves to Firestore), image upload to Firebase Storage
+  Admin demo password: mayil2024
+  
+  FIREBASE SETUP REQUIRED:
+  1. Create Firebase project at https://console.firebase.google.com
+  2. Enable Firestore Database (Start in test mode)
+  3. Enable Cloud Storage
+  4. Get your Firebase config from Project Settings
+  5. Replace firebaseConfig object below with your credentials
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayil Designer Studio - Dress Rentals & Customization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; color: #2d2d2d; background: linear-gradient(180deg, #faf9f8 0%, #f5f1f0 100%); }
+
+        nav {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(35, 20, 35, 0.97);
+            backdrop-filter: blur(15px);
+            z-index: 1000; padding: 20px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(220, 160, 200, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        .logo { font-size: 1.8rem; color: #dca0c8; letter-spacing: 2px; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .logo span { color: #b88bb3; font-size: 0.7rem; display: block; letter-spacing: 4px; font-family: 'Montserrat', sans-serif; margin-top: 4px; font-weight: 500; }
+        nav ul { list-style: none; display: flex; gap: 45px; }
+        nav ul a { 
+            color: #d9c5d0; text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; 
+            letter-spacing: 2px; text-transform: uppercase; transition: all 0.4s ease; 
+            padding-bottom: 8px; position: relative; font-weight: 500;
+        }
+        nav ul a::after { 
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; 
+            background: linear-gradient(90deg, #dca0c8, #c77ba8); transition: width 0.4s ease;
+        }
+        nav ul a:hover { color: #dca0c8; }
+        nav ul a:hover::after { width: 100%; }
+        .nav-toggle { display:none; background:transparent; border:none; color:#d9c5d0; font-size:1.5rem; cursor:pointer; }
+
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2a1530 0%, #452850 35%, #1a0f1a 70%, #2a1530 100%);
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(220, 160, 200, 0.12) 0%, transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            animation: float 8s ease-in-out infinite;
+        }
+        .hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(220, 160, 200, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 80%, rgba(220, 160, 200, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        @keyframes float { 
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-tag { 
+            font-family: 'Montserrat', sans-serif; font-size: 0.85rem; letter-spacing: 6px; color: #e8b8d8; 
+            text-transform: uppercase; margin-bottom: 30px; font-weight: 600;
+        }
+        .hero h1 { 
+            font-size: clamp(2.8rem, 7vw, 5.5rem); color: #fff; line-height: 1.15; margin-bottom: 15px; 
+            font-weight: 900; letter-spacing: 1.5px; font-family: 'Playfair Display', serif;
+            text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 80px rgba(220, 160, 200, 0.15);
+        }
+        .hero h1 em { color: #e8b8d8; font-style: italic; font-weight: 700; }
+        .hero-sub { 
+            font-family: 'Montserrat', sans-serif; color: #d4a8c8; font-size: 1.1rem; letter-spacing: 4px; 
+            text-transform: uppercase; margin-bottom: 35px; font-weight: 500;
+        }
+        .hero p { 
+            color: #d4c4b0; font-size: 1.15rem; max-width: 580px; margin: 0 auto 45px; 
+            line-height: 1.9; font-family: 'Montserrat', sans-serif; font-weight: 300;
+        }
+        .btn-group { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            background: linear-gradient(135deg, #dca0c8 0%, #c77ba8 100%); color: #2a1530;
+            padding: 16px 42px; border: none; font-family: 'Montserrat', sans-serif; font-size: 0.85rem;
+            letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+            text-decoration: none; font-weight: 700; transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+            box-shadow: 0 15px 40px rgba(220, 160, 200, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+        }
+        .btn-primary:hover { 
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 25px 60px rgba(220, 160, 200, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .btn-primary:focus-visible { outline: 3px solid rgba(220, 160, 200, 0.25); outline-offset: 4px; }
+        .btn-outline {
+            background: transparent; color: #e8b8d8; padding: 16px 42px;
+            border: 2px solid #e8b8d8; font-family: 'Montserrat', sans-serif; font-size: 0.85rem;
+            letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+            text-decoration: none; transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+            border-radius: 12px; font-weight: 600;
+        }
+        .btn-outline:hover { 
+            background: rgba(232, 184, 216, 0.1); 
+            transform: translateY(-3px); 
+            box-shadow: 0 20px 50px rgba(220, 160, 200, 0.25);
+        }
+        .btn-outline:focus-visible { outline: 3px solid rgba(220, 160, 200, 0.15); outline-offset: 4px; }
+
+        .scroll-hint { 
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            color: #a08a9a; font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 4px; 
+            text-transform: uppercase; animation: bounce 3s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
+        }
+
+        .stats { 
+            background: linear-gradient(135deg, #dca0c8 0%, #c77ba8 100%); 
+            padding: 50px 40px; display: flex; justify-content: center; gap: 100px; flex-wrap: wrap;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+        .stat { text-align: center; }
+        .stat-number { font-size: 2.5rem; color: #2a1530; font-weight: 800; letter-spacing: 1px; font-family: 'Playfair Display', serif; }
+        .stat-label { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; color: #3d2143; letter-spacing: 3px; text-transform: uppercase; margin-top: 8px; font-weight: 600; }
+
+        .section { padding: 110px 50px; }
+        .section-header { text-align: center; margin-bottom: 70px; }
+        .section-tag { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 6px; color: #dca0c8; text-transform: uppercase; margin-bottom: 20px; font-weight: 600; }
+        .section h2 { font-size: 3rem; color: #2a1530; margin-bottom: 18px; font-weight: 900; letter-spacing: 0.5px; font-family: 'Playfair Display', serif; }
+        .section-line { width: 80px; height: 3px; background: linear-gradient(90deg, #dca0c8, #c77ba8); margin: 0 auto; border-radius: 2px; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .service-card { 
+            border: 1px solid rgba(220, 160, 200, 0.15); padding: 50px 40px; text-align: center; 
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); position: relative; overflow: hidden;
+            background: #fff; border-radius: 16px;
+            box-shadow: 0 10px 35px rgba(42, 21, 48, 0.08);
+        }
+        .service-card::before { 
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; 
+            background: linear-gradient(90deg, #dca0c8, #c77ba8); transform: scaleX(0); 
+            transition: transform 0.4s ease; transform-origin: left;
+        }
+        .service-card:hover::before { transform: scaleX(1); }
+        .service-card:hover { 
+            transform: translateY(-10px) scale(1.01); 
+            box-shadow: 0 30px 70px rgba(42, 21, 48, 0.15);
+            border-color: rgba(220, 160, 200, 0.3);
+        }
+        .service-icon { font-size: 3.2rem; margin-bottom: 25px; }
+        .service-card h3 { font-size: 1.3rem; color: #2a1530; margin-bottom: 15px; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .service-card p { color: #6a5a6a; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; line-height: 1.8; font-weight: 400; }
+
+        .occasions { background: linear-gradient(180deg, #faf8f5 0%, #f5f1f0 100%); }
+        .occasions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto; }
+        .occasion-item { 
+            background: #fff; padding: 35px 25px; text-align: center; border: 1px solid rgba(220, 160, 200, 0.12); 
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); cursor: pointer;
+            border-radius: 14px; box-shadow: 0 8px 25px rgba(42, 21, 48, 0.06);
+        }
+        .occasion-item:hover { 
+            background: #2a1530; border-color: #dca0c8; 
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(42, 21, 48, 0.15);
+        }
+        .occasion-item:hover h4 { color: #dca0c8; }
+        .occasion-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .occasion-item h4 { font-size: 0.95rem; color: #2a1530; font-family: 'Montserrat', sans-serif; letter-spacing: 1.5px; transition: color 0.3s; font-weight: 700; }
+
+        .steps { display: flex; justify-content: center; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; gap: 15px; }
+        .step { flex: 1; min-width: 220px; text-align: center; padding: 35px 25px; position: relative; }
+        .step:not(:last-child)::after { 
+            content: '→'; position: absolute; right: -15px; top: 45px; font-size: 1.8rem; 
+            color: #dca0c8; font-weight: bold;
+        }
+        .step-number { 
+            width: 70px; height: 70px; background: linear-gradient(135deg, #dca0c8, #c77ba8); 
+            color: #2a1530; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; 
+            justify-content: center; margin: 0 auto 20px; border-radius: 50%;
+            box-shadow: 0 12px 30px rgba(220, 160, 200, 0.3); font-family: 'Playfair Display', serif;
+        }
+        .step h4 { font-size: 1.1rem; color: #2a1530; margin-bottom: 10px; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .step p { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; color: #6a5a6a; line-height: 1.7; font-weight: 400; }
+
+        .instagram { background: linear-gradient(180deg, #faf8f5 0%, #f5f1f0 100%); }
+        .insta-placeholder { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 950px; margin: 0 auto 40px; }
+        .insta-box { 
+            aspect-ratio: 1; background: linear-gradient(135deg, #452850, #dca0c8); display: flex; 
+            align-items: center; justify-content: center; font-size: 2.5rem; opacity: 0.85; 
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); cursor: pointer;
+            border-radius: 12px; box-shadow: 0 15px 40px rgba(42, 21, 48, 0.1);
+        }
+        .insta-box:hover { 
+            opacity: 1; 
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 30px 70px rgba(42, 21, 48, 0.18);
+        }
+        .insta-link { 
+            display: block; text-align: center; font-family: 'Montserrat', sans-serif; color: #dca0c8; 
+            text-decoration: none; font-size: 0.95rem; letter-spacing: 3px; font-weight: 600;
+        }
+        .insta-link:hover { color: #c77ba8; }
+
+        /* Location & Map Section */
+        .location { background: linear-gradient(135deg, #2a1530 0%, #3d2547 100%); }
+        .location-content { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; align-items: start; }
+        .location-map { border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+        .location-map iframe { width: 100%; height: 450px; border: none; display: block; }
+        .location-info { color: #d9c5d0; }
+        .location-info h3 { font-size: 1.8rem; color: #dca0c8; margin-bottom: 25px; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .location-detail { margin-bottom: 30px; }
+        .location-detail h4 { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; letter-spacing: 3px; color: #e8b8d8; text-transform: uppercase; margin-bottom: 10px; font-weight: 700; }
+        .location-detail p { font-family: 'Montserrat', sans-serif; font-size: 1rem; line-height: 1.8; color: #d9c5d0; font-weight: 400; }
+        .location-detail a { color: #dca0c8; text-decoration: none; transition: color 0.3s; font-weight: 600; }
+        .location-detail a:hover { color: #e8b8d8; }
+        .directions-btn { display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #dca0c8 0%, #c77ba8 100%); color: #2a1530; padding: 15px 35px; text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 700; margin-top: 20px; transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); border-radius: 12px; box-shadow: 0 12px 30px rgba(220, 160, 200, 0.3); border: none; cursor: pointer; }
+        .directions-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 50px rgba(220, 160, 200, 0.45); }
+
+        .location-pictures { margin-top: 60px; }
+        .location-pictures h4 { font-size: 1.3rem; color: #dca0c8; margin-bottom: 30px; font-weight: 700; font-family: 'Playfair Display', serif; text-align: center; }
+        .pictures-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .picture-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 40px rgba(42, 21, 48, 0.1); transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); cursor: pointer; background: linear-gradient(135deg, #452850, #dca0c8); display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        .picture-item:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 30px 70px rgba(42, 21, 48, 0.2); }
+        .picture-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1000px; margin: 0 auto; align-items: start; }
+        .contact-info h3 { font-size: 1.8rem; color: #2a1530; margin-bottom: 30px; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .contact-item { display: flex; gap: 20px; margin-bottom: 28px; align-items: flex-start; }
+        .contact-icon { font-size: 1.4rem; margin-top: 4px; }
+        .contact-item h4 { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; letter-spacing: 2.5px; color: #dca0c8; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+        .contact-item p, .contact-item a { font-family: 'Montserrat', sans-serif; color: #5a4a5a; font-size: 0.95rem; line-height: 1.7; text-decoration: none; font-weight: 400; }
+        .contact-item a:hover { color: #dca0c8; transition: color 0.3s; }
+        .whatsapp-btn { 
+            display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #25D366, #1da851); 
+            color: #fff; padding: 15px 35px; text-decoration: none; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; 
+            font-weight: 700; margin-top: 25px; transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+            border-radius: 12px; box-shadow: 0 12px 30px rgba(37, 211, 102, 0.35);
+            letter-spacing: 1px;
+        }
+        .whatsapp-btn:hover { 
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 20px 50px rgba(37, 211, 102, 0.45);
+        }
+        .contact-form { 
+            background: linear-gradient(135deg, #2a1530 0%, #3d2547 100%); padding: 50px 45px; 
+            border-radius: 16px; border: 1px solid rgba(220, 160, 200, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+        .contact-form h3 { color: #dca0c8; font-size: 1.4rem; margin-bottom: 30px; letter-spacing: 1px; font-family: 'Playfair Display', serif; font-weight: 700; }
+        .form-group { margin-bottom: 22px; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; background: rgba(220, 160, 200, 0.05); border: 1px solid rgba(220, 160, 200, 0.25); 
+            color: #e0d0d8; padding: 14px 18px; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; 
+            outline: none; transition: all 0.3s ease; border-radius: 8px; font-weight: 400;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+            border-color: #dca0c8; background: rgba(220, 160, 200, 0.08);
+            box-shadow: 0 0 0 3px rgba(220, 160, 200, 0.1);
+        }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #8a7a8a; }
+        .form-group select option { background: #2a1530; color: #e0d0d8; }
+        .form-group textarea { height: 110px; resize: none; }
+        .form-submit { 
+            width: 100%; background: linear-gradient(135deg, #dca0c8 0%, #c77ba8 100%); color: #2a1530; 
+            border: none; padding: 16px; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; letter-spacing: 2.5px; 
+            text-transform: uppercase; font-weight: 700; cursor: pointer; transition: all 0.4s ease;
+            border-radius: 8px; box-shadow: 0 12px 30px rgba(220, 160, 200, 0.3);
+        }
+        .form-submit:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 20px 50px rgba(220, 160, 200, 0.4);
+        }
+        .form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        footer { 
+            background: linear-gradient(180deg, #1d0d1d 0%, #2a1530 100%); 
+            padding: 50px 40px; text-align: center; border-top: 1px solid rgba(220, 160, 200, 0.15);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        .footer-logo { font-size: 1.9rem; color: #dca0c8; font-style: normal; margin-bottom: 12px; letter-spacing: 2px; font-weight: 700; font-family: 'Playfair Display', serif; }
+        .footer-logo span { display: block; font-family: 'Montserrat', sans-serif; font-style: normal; font-size: 0.75rem; letter-spacing: 5px; color: #8a7a8a; margin-top: 8px; font-weight: 600; }
+        footer p { font-family: 'Montserrat', sans-serif; color: #8a7a8a; font-size: 0.85rem; margin-top: 25px; line-height: 1.7; font-weight: 400; }
+
+        /* Loading overlay */
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .loading-overlay.active { display: flex; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(220,160,200,0.2); border-top: 4px solid #dca0c8; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Alert messages */
+        .alert { position: fixed; top: 20px; right: 20px; padding: 15px 25px; background: #2a1530; color: #dca0c8; border-radius: 8px; border: 1px solid rgba(220, 160, 200, 0.3); z-index: 1999; max-width: 400px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(500px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .alert.error { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.3); }
+        .alert.success { color: #51cf66; border-color: rgba(81, 207, 102, 0.3); }
+
+        /* Smooth transitions */
+        .btn, .btn-primary, .btn-outline { touch-action: manipulation; transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); }
+        .service-card, .occasion-item, .insta-box { transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); }
+
+        /* Selection color */
+        ::selection { background: rgba(220, 160, 200, 0.2); color: #2a1530; }
+
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            nav { padding: 16px 25px; }
+            .nav-toggle { display: inline-flex; align-items:center; gap:8px; }
+            .hero { min-height: 70vh; padding: 50px 25px; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1rem; }
+            .btn-primary, .btn-outline { padding: 14px 28px; font-size: 0.8rem; }
+            .section { padding: 70px 25px; }
+            .section h2 { font-size: 2.2rem; }
+            .services-grid { gap: 30px; }
+            .service-card { padding: 40px 30px; }
+            .insta-placeholder { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .contact-grid { grid-template-columns: 1fr; gap: 50px; }
+            .contact-form { padding: 40px 30px; }
+            .stats { gap: 50px; padding: 40px 25px; }
+            .step:not(:last-child)::after { display: none; }
+            .steps { flex-direction: column; }
+            .location-content { grid-template-columns: 1fr; gap: 40px; }
+            .location-map iframe { height: 350px; }
+            .pictures-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            nav { padding: 12px 18px; }
+            .logo { font-size: 1.4rem; }
+            .hero { min-height: 60vh; padding: 40px 20px; padding-top: 100px; }
+            .hero h1 { font-size: 1.8rem; line-height: 1.2; }
+            .hero p { font-size: 0.95rem; }
+            .hero-tag { font-size: 0.7rem; margin-bottom: 20px; }
+            .hero-sub { font-size: 0.9rem; margin-bottom: 25px; }
+            .btn-primary, .btn-outline { padding: 13px 24px; font-size: 0.75rem; }
+            .btn-group { gap: 12px; }
+            .section { padding: 50px 18px; }
+            .section h2 { font-size: 1.8rem; }
+            .section-tag { font-size: 0.7rem; }
+            .services-grid { gap: 20px; }
+            .service-card { padding: 30px 20px; }
+            .service-icon { font-size: 2.5rem; margin-bottom: 15px; }
+            .service-card h3 { font-size: 1.1rem; }
+            .service-card p { font-size: 0.85rem; }
+            .occasions-grid { gap: 18px; }
+            .occasion-item { padding: 25px 18px; }
+            .insta-placeholder { grid-template-columns: 1fr; gap: 10px; }
+            .contact-grid { gap: 40px; }
+            .contact-form { padding: 30px 20px; }
+            .contact-form h3 { font-size: 1.1rem; }
+            .form-group input, .form-group select, .form-group textarea { font-size: 0.9rem; padding: 12px 14px; }
+            .stats { flex-direction: column; gap: 30px; padding: 35px 20px; }
+            .stat-number { font-size: 2rem; }
+            .stat-label { font-size: 0.75rem; }
+            .step { padding: 25px 15px; }
+            .step-number { width: 60px; height: 60px; font-size: 1.2rem; }
+            .step h4 { font-size: 0.95rem; }
+            .step p { font-size: 0.8rem; }
+            footer { padding: 35px 20px; }
+            .footer-logo { font-size: 1.5rem; }
+            .location-map iframe { height: 300px; }
+            .location-info h3 { font-size: 1.3rem; }
+            .location-detail p { font-size: 0.95rem; }
+            .directions-btn { padding: 13px 28px; font-size: 0.85rem; }
+            .pictures-grid { grid-template-columns: 1fr; gap: 15px; }
+            .picture-item { aspect-ratio: 4/3; }
+        }
+
+        @media (max-width: 400px) {
+            .hero { padding: 35px 15px; padding-top: 90px; }
+            .hero h1 { font-size: 1.6rem; }
+            .btn-primary, .btn-outline { padding: 12px 20px; font-size: 0.7rem; }
+            .section { padding: 40px 14px; }
+            .section h2 { font-size: 1.6rem; }
+            .service-card { padding: 25px 15px; }
+            .contact-form { padding: 25px 15px; }
+            .insta-placeholder { gap: 8px; }
+            nav { padding: 10px 14px; }
+        }
+
+        /* Admin panel styles */
+        .admin-toggle { position: fixed; right: 20px; bottom: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, rgba(220, 160, 200, 0.2), rgba(199, 123, 168, 0.15)); border-radius: 10px; display:flex;align-items:center;justify-content:center;cursor:pointer; z-index:1200; border: 1px solid rgba(220, 160, 200, 0.3); font-size: 1.4rem; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(220, 160, 200, 0.2); }
+        .admin-toggle:hover { background: linear-gradient(135deg, rgba(220, 160, 200, 0.3), rgba(199, 123, 168, 0.25)); box-shadow: 0 15px 40px rgba(220, 160, 200, 0.3); }
+        .admin-panel { position: fixed; inset: 0; background: rgba(10, 6, 10, 0.6); display: none; align-items: center; justify-content: center; z-index:1300; padding: 20px; }
+        .admin-panel.open { display: flex; }
+        .admin-card { width: 100%; max-width: 1000px; background: linear-gradient(135deg, #1a0a1a, #0f050f); color: #eae1d5; border: 1px solid rgba(220, 160, 200, 0.2); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8); border-radius: 14px; overflow: hidden; }
+        .admin-header { display:flex; align-items:center; justify-content:space-between; padding: 22px 28px; background: linear-gradient(90deg, #452850, #2a1530); border-bottom: 1px solid rgba(220, 160, 200, 0.15); }
+        .admin-title { color: #dca0c8; font-weight:700; letter-spacing:3px; font-family: 'Playfair Display', serif; }
+        .admin-body { display:flex; gap:20px; padding: 18px; flex-wrap:wrap; }
+        .admin-nav { width: 220px; min-width:160px; border-right: 1px solid rgba(220, 160, 200, 0.06); }
+        .admin-nav button { display:block; width:100%; text-align:left; background:transparent; color:#d9ccc0; border:none; padding:14px 14px; cursor:pointer; font-family:'Montserrat', sans-serif; border-radius:8px; margin-bottom:8px; transition: all 0.3s ease; font-weight: 500; }
+        .admin-nav button.active, .admin-nav button:hover { background: rgba(220, 160, 200, 0.08); color:#fff; }
+        .admin-panel-section { flex:1; min-width:260px; max-height:60vh; overflow:auto; padding:8px 12px; }
+        .field { margin-bottom:12px; }
+        .field label { display:block; font-size:0.8rem; color:#dca0c8; margin-bottom:8px; letter-spacing:2px; text-transform: uppercase; font-weight: 700; font-family: 'Montserrat', sans-serif; }
+        .field input[type="text"], .field input[type="tel"], .field textarea, .field select { width:100%; padding:12px; background: rgba(220, 160, 200, 0.04); border:1px solid rgba(220, 160, 200, 0.2); color:#e8dcc6; border-radius:8px; font-family:'Montserrat', sans-serif; transition: all 0.3s ease; font-size: 0.9rem; }
+        .field textarea { min-height:80px; }
+        .btn { display:inline-block; background: linear-gradient(135deg, #dca0c8, #c77ba8); color:#2a1530; padding:10px 16px; border-radius:8px; font-weight:700; text-decoration:none; cursor:pointer; font-family: 'Montserrat', sans-serif; transition: all 0.3s ease; border: none; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .thumbs { display:flex; gap:8px; flex-wrap:wrap; }
+        .thumb { width:80px; height:80px; border-radius:6px; overflow:hidden; background:#2a1a1a; display:flex;align-items:center;justify-content:center; position:relative; }
+        .thumb img{ width:100%; height:100%; object-fit:cover; }
+        .thumb .del { position:absolute; top:6px; right:6px; background:rgba(0,0,0,0.5); color:#fff; border-radius:4px; padding:2px 6px; cursor:pointer; font-size:0.75rem; }
+        .login-box { padding: 22px; }
+        .login-box input { width:100%; padding:12px; margin-bottom:12px; background: rgba(220, 160, 200, 0.04); border:1px solid rgba(220, 160, 200, 0.2); color:#e8dcc6; border-radius:8px; font-family:'Montserrat', sans-serif; transition: all 0.3s ease; }
+        @media (max-width:700px){ .admin-body{flex-direction:column;} .admin-nav{width:100%; order:2;} .admin-panel-section{order:1;} .admin-card{max-width:100%; height:100%; border-radius:0;} }
+
+        /* Insta gallery images display */
+        .insta-placeholder .insta-box img { width:100%; height:100%; object-fit:cover; display:block; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">Mayil<span>Designer Studio</span></div>
+    <button class="nav-toggle" id="nav_toggle" aria-label="Menu">☰</button>
+    <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#occasions">Occasions</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#location">Location</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <p class="hero-tag">✦ Visakhapatnam's Premier Studio ✦</p>
+        <h1 id="hero_title">Wear the <em>Dream,</em><br>Own the Moment</h1>
+        <p class="hero-sub" id="hero_sub">Dress Rentals & Custom Design</p>
+        <p id="hero_text">From pre-wedding shoots to maternity sessions — we dress you for every chapter of your story.</p>
+        <div class="btn-group">
+            <a href="https://wa.me/918074797081" class="btn-primary" target="_blank">Book a Trial →</a>
+            <a href="#services" class="btn-outline">Explore Collection</a>
+        </div>
+    </div>
+</section>
+
+<div class="stats">
+    <div class="stat"><div class="stat-number" id="stat1">3,976+</div><div class="stat-label">Happy Clients</div></div>
+    <div class="stat"><div class="stat-number" id="stat2">638+</div><div class="stat-label">Dress Collection</div></div>
+    <div class="stat"><div class="stat-number" id="stat3">100%</div><div class="stat-label">Walk-in Welcome</div></div>
+    <div class="stat"><div class="stat-number" id="stat4">Vizag</div><div class="stat-label">Based & Serving</div></div>
+</div>
+
+<section class="section" id="services">
+    <div class="section-header">
+        <p class="section-tag">✦ What We Offer ✦</p>
+        <h2>Our Services</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="services-grid">
+        <div class="service-card"><div class="service-icon">👗</div><h3 id="service1_title">Dress Rentals</h3><p id="service1_desc">Choose from our stunning collection of 638+ dresses for any occasion. Affordable rentals so you look extraordinary without the full price tag.</p></div>
+        <div class="service-card"><div class="service-icon">✂️</div><h3 id="service2_title">Custom Designing</h3><p id="service2_desc">Have a vision in mind? Our expert designers will craft your dream outfit tailored perfectly to your style, size, and occasion.</p></div>
+        <div class="service-card"><div class="service-icon">📸</div><h3 id="service3_title">Shoot Styling</h3><p id="service3_desc">Pre-wedding, post-wedding, and maternity shoots — we dress you for your most photographed moments with elegance and grace.</p></div>
+        <div class="service-card"><div class="service-icon">🚶‍♀️</div><h3 id="service4_title">Walk-in Trial</h3><p id="service4_desc">Visit our studio in Vizag and try outfits before you decide. Feel absolutely perfect before stepping out.</p></div>
+    </div>
+</section>
+
+<section class="section occasions" id="occasions">
+    <div class="section-header">
+        <p class="section-tag">✦ Every Occasion ✦</p>
+        <h2>Dressed for Every Moment</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="occasions-grid" id="occasions_list">
+        <!-- Dynamically populated from Firestore -->
+    </div>
+</section>
+
+<section class="section" id="how">
+    <div class="section-header">
+        <p class="section-tag">✦ Simple Process ✦</p>
+        <h2>How It Works</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="steps">
+        <div class="step"><div class="step-number">1</div><h4>Contact Us</h4><p>WhatsApp or call us to discuss your occasion and requirements</p></div>
+        <div class="step"><div class="step-number">2</div><h4>Walk-in Trial</h4><p>Visit our Vizag studio and try your favourite outfits in person</p></div>
+        <div class="step"><div class="step-number">3</div><h4>Pick Your Look</h4><p>Choose the perfect dress from our 638+ stunning collection</p></div>
+        <div class="step"><div class="step-number">4</div><h4>Shine & Slay</h4><p>Step out looking absolutely stunning for your special day</p></div>
+    </div>
+</section>
+
+<section class="section location" id="location">
+    <div class="section-header">
+        <p class="section-tag">✦ Visit Our Studio ✦</p>
+        <h2>Find Us on the Map</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="location-content">
+        <div class="location-map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3824.3098699878344!2d83.29019!3d17.68659!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a395180b7e0b0f9%3A0x1a1a1a1a1a1a1a1a!2sMayil%20Designer%20Studio!5e0!3m2!1sen!2sin!4v1234567890" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <div class="location-info">
+            <h3>📍 Visit Our Studio</h3>
+            <div class="location-detail">
+                <h4>Address</h4>
+                <p id="loc_address">D No 1-1-78/1, Honda Showroom Line,<br>Vivekananda Colony, Akkireddypalem,<br>Visakhapatnam, Andhra Pradesh 530012, India</p>
+            </div>
+            <div class="location-detail">
+                <h4>Phone</h4>
+                <p><a href="tel:+918074797081" id="loc_phone">+91 80747 97081</a></p>
+            </div>
+            <div class="location-detail">
+                <h4>Working Hours</h4>
+                <p>Monday - Saturday: 10:00 AM - 7:00 PM<br>Sunday: 11:00 AM - 6:00 PM</p>
+            </div>
+            <a href="https://maps.google.com/?q=Mayil+Designer+Studio+Visakhapatnam" target="_blank" class="directions-btn">📍 Get Directions</a>
+            <a href="https://wa.me/918074797081?text=Hi! I'm interested in visiting your studio for a trial." target="_blank" class="directions-btn" style="background: linear-gradient(135deg, #25D366, #1da851); margin-left: 12px;">💬 Message on WhatsApp</a>
+        </div>
+    </div>
+
+    <div class="location-pictures">
+        <h4>Studio Gallery</h4>
+        <div class="pictures-grid" id="location_pictures">
+            <!-- Location pictures loaded from Firebase Storage -->
+        </div>
+    </div>
+</section>
+
+<section class="section instagram">
+    <div class="section-header">
+        <p class="section-tag">✦ Follow Our Journey ✦</p>
+        <h2>@mayilbysravani0</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="insta-placeholder" id="gallery_grid">
+        <!-- Gallery populated from Firebase Storage -->
+    </div>
+    <a href="https://instagram.com/mayilbysravani0" class="insta-link" id="contact_insta_link" target="_blank">→ View Full Collection on Instagram</a>
+</section>
+
+<section class="section" id="contact">
+    <div class="section-header">
+        <p class="section-tag">✦ Get In Touch ✦</p>
+        <h2>Visit or Contact Us</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="contact-grid">
+        <div class="contact-info">
+            <h3>We'd love to dress you.</h3>
+            <div class="contact-item">
+                <div class="contact-icon">📍</div>
+                <div>
+                    <h4>Studio Address</h4>
+                    <p id="contact_address">D No 1-1-78/1, Honda Showroom Line,<br>Vivekananda Colony, Akkireddypalem,<br>Visakhapatnam, Andhra Pradesh 530012, India</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">📞</div>
+                <div>
+                    <h4>Phone & WhatsApp</h4>
+                    <a id="contact_phone" href="tel:+918074797081">+91 80747 97081</a>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">📸</div>
+                <div>
+                    <h4>Instagram</h4>
+                    <a id="contact_insta_text" href="https://instagram.com/mayilbysravani0" target="_blank">@mayilbysravani0</a>
+                </div>
+            </div>
+            <a href="https://wa.me/918074797081?text=Hi! I'm interested in visiting your studio for a trial." class="whatsapp-btn" target="_blank">💬 Chat on WhatsApp</a>
+        </div>
+        <div class="contact-form">
+            <h3>Quick Enquiry</h3>
+            <div class="form-group"><input type="text" id="fname" placeholder="Your Name"></div>
+            <div class="form-group"><input type="tel" id="fphone" placeholder="Your Phone Number"></div>
+            <div class="form-group">
+                <select id="foccasion">
+                    <option value="" disabled selected>Select Occasion</option>
+                    <option>Pre-Wedding Shoot</option>
+                    <option>Post-Wedding Shoot</option>
+                    <option>Maternity Shoot</option>
+                    <option>Function / Event</option>
+                    <option>Custom Design</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group"><textarea id="fmsg" placeholder="Any specific requirements or questions?"></textarea></div>
+            <button class="form-submit" id="submit_enquiry" onclick="sendWhatsApp()">Send Enquiry via WhatsApp</button>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-logo">Mayil<span>Designer Studio · Visakhapatnam</span></div>
+    <p id="footer_copy">© 2024 Mayil Designer Studio by Sravani. All rights reserved.</p>
+    <p style="margin-top: 8px;">Rental Dress Vizag · Custom Designing · Pre & Post Wedding · Maternity Shoots</p>
+</footer>
+
+<!-- Admin toggle button -->
+<div class="admin-toggle" id="admin_toggle" title="Admin">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" fill="#c9a84c"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06A2 2 0 0 1 2.3 17.88l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.65 0 1.23-.39 1.5-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 0 1 6.12 2.3l.06.06a1.65 1.65 0 0 0 1.82.33H8a1.65 1.65 0 0 0 1-1.5V2a2 2 0 1 1 4 0v.09c0 .57.37 1.09 1 1.5h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06A2 2 0 0 1 21.7 6.12l-.06.06a1.65 1.65 0 0 0-.33 1.82V8c.65.27 1 0 1 0H21a2 2 0 1 1 0 4h-.09c-.57 0-1.09.37-1.5 1z" fill="#c9a84c"/></svg>
+</div>
+
+<!-- Admin panel -->
+<div class="admin-panel" id="admin_panel">
+    <div class="admin-card">
+        <div class="admin-header">
+            <div class="admin-title">Mayil Admin</div>
+            <div style="color:#e8dcc6; font-size:0.9rem">Firebase-powered CMS</div>
+        </div>
+        <div class="admin-body">
+            <div class="admin-nav" id="admin_nav">
+                <button data-tab="login" id="nav_login">Login</button>
+                <button data-tab="photos" id="nav_photos">Photos</button>
+                <button data-tab="location" id="nav_location">Location Photos</button>
+                <button data-tab="content" id="nav_content">Content</button>
+                <button data-tab="contact" id="nav_contact">Contact</button>
+                <button data-tab="occasions" id="nav_occasions">Occasions</button>
+                <button data-tab="about" id="nav_about">About</button>
+                <button data-tab="logout" id="nav_logout" style="color:#c9a84c; display:none;">Logout</button>
+            </div>
+            <div class="admin-panel-section" id="admin_section">
+                <!-- login -->
+                <div id="admin_login" class="admin-subsection login-box">
+                    <h3 style="color:#c9a84c; margin-bottom:10px;">Admin Login</h3>
+                    <input type="password" id="admin_pass" placeholder="Enter password">
+                    <div style="display:flex; gap:8px;"><button class="btn" id="admin_login_btn">Login</button><button class="btn" id="admin_close_btn">Close</button></div>
+                    <p style="font-size:0.8rem; color:#bba87a; margin-top:10px;">Password: mayil2024</p>
+                </div>
+
+                <!-- photos -->
+                <div id="admin_photos" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Dress Photos</h3>
+                    <div class="field">
+                        <label>Upload Photos</label>
+                        <input type="file" id="photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Uploaded</label>
+                        <div class="thumbs" id="photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="photo_clear">Clear All Photos</button></div>
+                </div>
+
+                <!-- location photos -->
+                <div id="admin_location" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Studio & Location Photos</h3>
+                    <div class="field">
+                        <label>Upload Location Photos</label>
+                        <input type="file" id="location_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Uploaded Photos</label>
+                        <div class="thumbs" id="location_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="location_photo_clear">Clear All Photos</button></div>
+                </div>
+
+                <!-- content -->
+                <div id="admin_content" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Text Content</h3>
+                    <div class="field"><label>Hero Title</label><input type="text" id="edit_hero_title"></div>
+                    <div class="field"><label>Hero Subtitle</label><input type="text" id="edit_hero_sub"></div>
+                    <div class="field"><label>Hero Text</label><textarea id="edit_hero_text"></textarea></div>
+                    <div class="field"><label>Service 1 Title</label><input type="text" id="edit_service1_title"></div>
+                    <div class="field"><label>Service 1 Description</label><textarea id="edit_service1_desc"></textarea></div>
+                    <div class="field"><label>Service 2 Title</label><input type="text" id="edit_service2_title"></div>
+                    <div class="field"><label>Service 2 Description</label><textarea id="edit_service2_desc"></textarea></div>
+                    <div class="field"><label>Service 3 Title</label><input type="text" id="edit_service3_title"></div>
+                    <div class="field"><label>Service 3 Description</label><textarea id="edit_service3_desc"></textarea></div>
+                    <div class="field"><label>Service 4 Title</label><input type="text" id="edit_service4_title"></div>
+                    <div class="field"><label>Service 4 Description</label><textarea id="edit_service4_desc"></textarea></div>
+                    <div class="field"><button class="btn" id="save_content">Save Content</button></div>
+                </div>
+
+                <!-- contact -->
+                <div id="admin_contact" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Contact & Info</h3>
+                    <div class="field"><label>Phone</label><input type="tel" id="edit_contact_phone"></div>
+                    <div class="field"><label>Address (HTML allowed)</label><textarea id="edit_contact_address"></textarea></div>
+                    <div class="field"><label>Instagram Handle/Link</label><input type="text" id="edit_contact_insta"></div>
+                    <div class="field"><label>Stats - Clients</label><input type="text" id="edit_stat1"></div>
+                    <div class="field"><label>Stats - Collection</label><input type="text" id="edit_stat2"></div>
+                    <div class="field"><label>Stats - Walk-in</label><input type="text" id="edit_stat3"></div>
+                    <div class="field"><label>Stats - Location</label><input type="text" id="edit_stat4"></div>
+                    <div class="field"><button class="btn" id="save_contact">Save Contact</button></div>
+                </div>
+
+                <!-- occasions -->
+                <div id="admin_occasions" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Occasions</h3>
+                    <div class="field"><label>Add Occasion</label><input type="text" id="new_occasion_input"></div>
+                    <div class="field"><button class="btn" id="add_occasion">Add</button></div>
+                    <div class="field"><label>Existing</label><div id="occasions_admin_list"></div></div>
+                </div>
+
+                <div id="admin_about" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Other</h3>
+                    <div class="field"><label>Footer Copyright</label><input type="text" id="edit_footer_copy"></div>
+                    <div class="field"><button class="btn" id="save_about">Save</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading_overlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    // ============================================================================
+    // FIREBASE CONFIGURATION
+    // ============================================================================
+    // Replace with your Firebase project credentials from https://console.firebase.google.com
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js';
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc, query, where } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js';
+    import { getStorage, ref, uploadBytes, getBytes, deleteObject, listAll } from 'https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js';
+
+    const firebaseConfig = {
+        // 🔴 REPLACE WITH YOUR FIREBASE CONFIG
+        apiKey: "YOUR_API_KEY",
+        authDomain: "your-project.firebaseapp.com",
+        projectId: "your-project",
+        storageBucket: "your-project.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // ============================================================================
+    // GLOBAL STATE & CONSTANTS
+    // ============================================================================
+    const ADMIN_PASS = 'mayil2024';
+    const LOADING_OVERLAY = document.getElementById('loading_overlay');
+
+    // Default content (used as fallback)
+    const defaults = {
+        content: {
+            hero_title: document.getElementById('hero_title').innerHTML,
+            hero_sub: document.getElementById('hero_sub').textContent,
+            hero_text: document.getElementById('hero_text').textContent,
+            service1_title: document.getElementById('service1_title').textContent,
+            service1_desc: document.getElementById('service1_desc').textContent,
+            service2_title: document.getElementById('service2_title').textContent,
+            service2_desc: document.getElementById('service2_desc').textContent,
+            service3_title: document.getElementById('service3_title').textContent,
+            service3_desc: document.getElementById('service3_desc').textContent,
+            service4_title: document.getElementById('service4_title').textContent,
+            service4_desc: document.getElementById('service4_desc').textContent,
+            footer_copy: document.querySelector('footer p')?.textContent || '© 2024 Mayil Designer Studio'
+        },
+        contact: {
+            phone: '+91 80747 97081',
+            address: document.getElementById('contact_address').innerHTML,
+            insta: '@mayilbysravani0',
+            stat1: '3,976+',
+            stat2: '638+',
+            stat3: '100%',
+            stat4: 'Vizag'
+        },
+        occasions: ['Pre-Wedding Shoot','Post-Wedding Shoot','Maternity Shoot','Functions & Events','Any Occasion']
+    };
+
+    // ============================================================================
+    // UTILITY FUNCTIONS
+    // ============================================================================
+    function showLoading(show = true) {
+        LOADING_OVERLAY.classList.toggle('active', show);
+    }
+
+    function showAlert(message, type = 'success') {
+        const alert = document.createElement('div');
+        alert.className = `alert ${type}`;
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            if (this.getAttribute('href') === '#admin') return;
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // ============================================================================
+    // WHATSAPP MESSAGE HANDLER
+    // ============================================================================
+    window.sendWhatsApp = function() {
+        const name = document.getElementById('fname').value;
+        const phone = document.getElementById('fphone').value;
+        const occasion = document.getElementById('foccasion').value;
+        const msg = document.getElementById('fmsg').value;
+        
+        if (!name || !phone) { 
+            showAlert('Please enter your name and phone number.', 'error');
+            return; 
+        }
+        
+        const text = `Hi Mayil Studio, my name is ${name}. I want to book for ${occasion || 'General Enquiry'}. My number is ${phone}.${msg ? ' ' + msg : ''}`;
+        window.open(`https://wa.me/918074797081?text=${encodeURIComponent(text)}`, '_blank');
+        
+        // Clear form
+        document.getElementById('fname').value = '';
+        document.getElementById('fphone').value = '';
+        document.getElementById('foccasion').value = '';
+        document.getElementById('fmsg').value = '';
+    };
+
+    // ============================================================================
+    // FIRESTORE OPERATIONS
+    // ============================================================================
+
+    // Load content from Firestore
+    async function loadContent() {
+        try {
+            const docRef = doc(db, 'site', 'content');
+            const docSnap = await getDoc(docRef);
+            return docSnap.exists() ? docSnap.data() : defaults.content;
+        } catch (error) {
+            console.error('Error loading content:', error);
+            return defaults.content;
+        }
+    }
+
+    // Load contact from Firestore
+    async function loadContact() {
+        try {
+            const docRef = doc(db, 'site', 'contact');
+            const docSnap = await getDoc(docRef);
+            return docSnap.exists() ? docSnap.data() : defaults.contact;
+        } catch (error) {
+            console.error('Error loading contact:', error);
+            return defaults.contact;
+        }
+    }
+
+    // Load occasions from Firestore
+    async function loadOccasions() {
+        try {
+            const docRef = doc(db, 'site', 'occasions');
+            const docSnap = await getDoc(docRef);
+            return docSnap.exists() && docSnap.data().list ? docSnap.data().list : defaults.occasions;
+        } catch (error) {
+            console.error('Error loading occasions:', error);
+            return defaults.occasions;
+        }
+    }
+
+    // Save content to Firestore
+    async function saveContent(data) {
+        try {
+            showLoading(true);
+            await setDoc(doc(db, 'site', 'content'), data);
+            showAlert('Content saved successfully!', 'success');
+            applyContent(data);
+        } catch (error) {
+            console.error('Error saving content:', error);
+            showAlert('Error saving content: ' + error.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Save contact to Firestore
+    async function saveContact(data) {
+        try {
+            showLoading(true);
+            await setDoc(doc(db, 'site', 'contact'), data);
+            showAlert('Contact info saved successfully!', 'success');
+            applyContact(data);
+        } catch (error) {
+            console.error('Error saving contact:', error);
+            showAlert('Error saving contact: ' + error.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Save occasions to Firestore
+    async function saveOccasions(list) {
+        try {
+            showLoading(true);
+            await setDoc(doc(db, 'site', 'occasions'), { list });
+            showAlert('Occasions saved!', 'success');
+            renderOccasions();
+        } catch (error) {
+            console.error('Error saving occasions:', error);
+            showAlert('Error saving occasions: ' + error.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // ============================================================================
+    // FIREBASE STORAGE OPERATIONS
+    // ============================================================================
+
+    // Get image URLs from Firebase Storage
+    async function getGalleryUrls(folderName) {
+        try {
+            const folderRef = ref(storage, folderName);
+            const files = await listAll(folderRef);
+            
+            const urls = [];
+            for (const fileRef of files.items) {
+                try {
+                    const url = await getFileUrl(fileRef);
+                    urls.push(url);
+                } catch (err) {
+                    console.error('Error getting URL:', err);
+                }
+            }
+            return urls;
+        } catch (error) {
+            console.error('Error listing files:', error);
+            return [];
+        }
+    }
+
+    // Get download URL for a file
+    async function getFileUrl(fileRef) {
+        try {
+            const url = await getDownloadURL(fileRef);
+            return url;
+        } catch (error) {
+            console.error('Error getting download URL:', error);
+            return null;
+        }
+    }
+
+    // Use getBytes for better compatibility
+    async function getFileUrlAlt(fileRef) {
+        try {
+            const bytes = await getBytes(fileRef);
+            const blob = new Blob([bytes]);
+            return URL.createObjectURL(blob);
+        } catch (error) {
+            console.error('Error getting file:', error);
+            return null;
+        }
+    }
+
+    // Upload image to Firebase Storage
+    async function uploadImage(file, folderName) {
+        try {
+            const timestamp = Date.now();
+            const fileName = `${timestamp}_${file.name}`;
+            const fileRef = ref(storage, `${folderName}/${fileName}`);
+            
+            showLoading(true);
+            await uploadBytes(fileRef, file);
+            showLoading(false);
+            
+            return fileRef.fullPath;
+        } catch (error) {
+            showLoading(false);
+            console.error('Upload error:', error);
+            showAlert('Error uploading image: ' + error.message, 'error');
+            return null;
+        }
+    }
+
+    // Delete image from Firebase Storage
+    async function deleteImage(filePath) {
+        try {
+            showLoading(true);
+            const fileRef = ref(storage, filePath);
+            await deleteObject(fileRef);
+            showLoading(false);
+            return true;
+        } catch (error) {
+            showLoading(false);
+            console.error('Delete error:', error);
+            return false;
+        }
+    }
+
+    // ============================================================================
+    // DOM RENDERING FUNCTIONS
+    // ============================================================================
+
+    // Apply content to DOM
+    function applyContent(data) {
+        if (!data) return;
+        if (data.hero_title !== undefined) document.getElementById('hero_title').innerHTML = data.hero_title;
+        if (data.hero_sub !== undefined) document.getElementById('hero_sub').textContent = data.hero_sub;
+        if (data.hero_text !== undefined) document.getElementById('hero_text').textContent = data.hero_text;
+        for (let i=1;i<=4;i++){
+            const t = data['service'+i+'_title']; 
+            const d = data['service'+i+'_desc'];
+            if (t!==undefined) document.getElementById('service'+i+'_title').textContent = t;
+            if (d!==undefined) document.getElementById('service'+i+'_desc').textContent = d;
+        }
+        if (data.footer_copy !== undefined) {
+            const footP = document.querySelector('footer p'); 
+            if (footP) footP.textContent = data.footer_copy;
+        }
+    }
+
+    // Apply contact to DOM
+    function applyContact(data){
+        if (!data) return;
+        if (data.phone !== undefined){ 
+            document.getElementById('contact_phone').textContent = data.phone; 
+            document.getElementById('contact_phone').href = 'tel:'+data.phone.replace(/\s+/g,'');
+            document.getElementById('loc_phone').textContent = data.phone;
+            document.getElementById('loc_phone').href = 'tel:'+data.phone.replace(/\s+/g,'');
+        }
+        if (data.address !== undefined) {
+            document.getElementById('contact_address').innerHTML = data.address;
+            document.getElementById('loc_address').innerHTML = data.address;
+        }
+        if (data.insta !== undefined){ 
+            document.getElementById('contact_insta_text').textContent = data.insta; 
+            document.getElementById('contact_insta_link').href = 'https://instagram.com/'+data.insta.replace('@','');
+        }
+        if (data.stat1 !== undefined) document.getElementById('stat1').textContent = data.stat1;
+        if (data.stat2 !== undefined) document.getElementById('stat2').textContent = data.stat2;
+        if (data.stat3 !== undefined) document.getElementById('stat3').textContent = data.stat3;
+        if (data.stat4 !== undefined) document.getElementById('stat4').textContent = data.stat4;
+    }
+
+    // Render gallery from storage
+    async function renderGallery(){
+        showLoading(true);
+        try {
+            const urls = await getGalleryUrls('gallery');
+            const grid = document.getElementById('gallery_grid');
+            grid.innerHTML = '';
+            
+            if (urls.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#8a7a8a;">Gallery photos coming soon...</p>';
+            } else {
+                urls.forEach((url, i)=>{
+                    const box = document.createElement('div');
+                    box.className = 'insta-box';
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'Dress '+(i+1);
+                    img.style.width='100%';
+                    img.style.height='100%';
+                    img.style.objectFit='cover';
+                    box.appendChild(img);
+                    grid.appendChild(box);
+                });
+            }
+        } catch (error) {
+            console.error('Error rendering gallery:', error);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Render location pictures from storage
+    async function renderLocationPictures(){
+        showLoading(true);
+        try {
+            const urls = await getGalleryUrls('location_gallery');
+            const grid = document.getElementById('location_pictures');
+            if (grid) {
+                grid.innerHTML = '';
+                if (urls.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#8a7a8a;">Studio photos coming soon...</p>';
+                } else {
+                    urls.forEach((url, i)=>{
+                        const box = document.createElement('div');
+                        box.className = 'picture-item';
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = 'Studio '+(i+1);
+                        box.appendChild(img);
+                        grid.appendChild(box);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error rendering location pictures:', error);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Render occasions
+    async function renderOccasions(){
+        try {
+            const list = await loadOccasions();
+            const container = document.getElementById('occasions_list');
+            container.innerHTML='';
+            const icons = ['💍','🌸','🤰','🎉','🎭','✨','💃'];
+            
+            list.forEach((o,i)=>{ 
+                const item=document.createElement('div'); 
+                item.className='occasion-item'; 
+                const ic=document.createElement('div'); 
+                ic.className='occasion-icon'; 
+                ic.textContent = icons[i % icons.length]; 
+                const h4=document.createElement('h4'); 
+                h4.textContent=o; 
+                item.appendChild(ic); 
+                item.appendChild(h4); 
+                container.appendChild(item); 
+            });
+
+            // Admin list
+            const aList = document.getElementById('occasions_admin_list');
+            if (aList){ 
+                aList.innerHTML='';
+                list.forEach((o,i)=>{ 
+                    const row=document.createElement('div'); 
+                    row.style.display='flex'; 
+                    row.style.gap='8px'; 
+                    row.style.alignItems='center'; 
+                    row.style.marginBottom='8px'; 
+                    const label = document.createElement('div'); 
+                    label.textContent = o; 
+                    label.style.flex='1'; 
+                    const del = document.createElement('button'); 
+                    del.className='btn'; 
+                    del.style.background='transparent'; 
+                    del.style.color='#e8dcc6'; 
+                    del.style.border='1px solid rgba(201,168,76,0.08)'; 
+                    del.textContent='Remove'; 
+                    del.onclick=async ()=>{ 
+                        if(confirm('Remove "'+o+'"?')){ 
+                            list.splice(i,1); 
+                            await saveOccasions(list);
+                        } 
+                    }; 
+                    row.appendChild(label); 
+                    row.appendChild(del); 
+                    aList.appendChild(row); 
+                }); 
+            }
+        } catch (error) {
+            console.error('Error rendering occasions:', error);
+        }
+    }
+
+    // ============================================================================
+    // ADMIN PANEL FUNCTIONS
+    // ============================================================================
+
+    const adminPanel = document.getElementById('admin_panel');
+    const adminToggle = document.getElementById('admin_toggle');
+
+    function openAdmin(){ 
+        adminPanel.classList.add('open'); 
+        showTab(sessionStorage.getItem('mayil_admin') ? 'photos' : 'login'); 
+    }
+
+    function closeAdmin(){ 
+        adminPanel.classList.remove('open'); 
+    }
+
+    adminToggle.addEventListener('click', ()=>{ openAdmin(); });
+
+    if (location.hash === '#admin' || location.pathname.endsWith('/admin') ) { 
+        openAdmin(); 
+    }
+
+    // Admin nav switching
+    document.getElementById('admin_nav').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button'); 
+        if(!btn) return; 
+        const tab = btn.dataset.tab; 
+        if(tab==='logout'){ doLogout(); return;} 
+        if(tab==='login' && sessionStorage.getItem('mayil_admin')){ tab='photos'; }
+        showTab(tab);
+    });
+
+    function showTab(tab){ 
+        document.querySelectorAll('#admin_section .admin-subsection').forEach(s=>s.style.display='none'); 
+        document.querySelectorAll('#admin_nav button').forEach(b=>b.classList.remove('active'));
+        
+        const btn = document.querySelector('#admin_nav button[data-tab="'+tab+'"]'); 
+        if(btn) btn.classList.add('active'); 
+        const el = document.getElementById('admin_'+tab); 
+        if(el) el.style.display='block';
+        
+        // Trigger load actions
+        if(tab==='photos') renderGallery();
+        if(tab==='location') renderLocationPictures();
+        if(tab==='content') populateContentInputs();
+        if(tab==='contact') populateContactInputs();
+        if(tab==='occasions') renderOccasions();
+    }
+
+    // Login handler
+    document.getElementById('admin_login_btn').addEventListener('click', ()=>{
+        const p = document.getElementById('admin_pass').value;
+        if (p === ADMIN_PASS){ 
+            sessionStorage.setItem('mayil_admin','1'); 
+            document.getElementById('nav_logout').style.display='block'; 
+            showAlert('Logged in successfully!', 'success');
+            showTab('photos'); 
+        } else { 
+            showAlert('Incorrect password', 'error');
+        }
+    });
+
+    document.getElementById('admin_close_btn').addEventListener('click', ()=>{ closeAdmin(); });
+
+    function doLogout(){ 
+        sessionStorage.removeItem('mayil_admin'); 
+        document.getElementById('nav_logout').style.display='none'; 
+        showTab('login'); 
+        showAlert('Logged out', 'success');
+    }
+
+    // Populate form inputs
+    async function populateContentInputs(){ 
+        const data = await loadContent();
+        document.getElementById('edit_hero_title').value = data.hero_title || '';
+        document.getElementById('edit_hero_sub').value = data.hero_sub || '';
+        document.getElementById('edit_hero_text').value = data.hero_text || '';
+        for(let i=1;i<=4;i++){ 
+            document.getElementById('edit_service'+i+'_title').value = data['service'+i+'_title'] || ''; 
+            document.getElementById('edit_service'+i+'_desc').value = data['service'+i+'_desc'] || ''; 
+        }
+    }
+
+    async function populateContactInputs(){ 
+        const c = await loadContact();
+        document.getElementById('edit_contact_phone').value = c.phone || '';
+        document.getElementById('edit_contact_address').value = c.address || '';
+        document.getElementById('edit_contact_insta').value = c.insta || '';
+        document.getElementById('edit_stat1').value = c.stat1 || '';
+        document.getElementById('edit_stat2').value = c.stat2 || '';
+        document.getElementById('edit_stat3').value = c.stat3 || '';
+        document.getElementById('edit_stat4').value = c.stat4 || '';
+        const content = await loadContent();
+        document.getElementById('edit_footer_copy').value = content.footer_copy || '';
+    }
+
+    // Save handlers
+    document.getElementById('save_content').addEventListener('click', async ()=>{
+        const obj = {
+            hero_title: document.getElementById('edit_hero_title').value,
+            hero_sub: document.getElementById('edit_hero_sub').value,
+            hero_text: document.getElementById('edit_hero_text').value,
+            service1_title: document.getElementById('edit_service1_title').value,
+            service1_desc: document.getElementById('edit_service1_desc').value,
+            service2_title: document.getElementById('edit_service2_title').value,
+            service2_desc: document.getElementById('edit_service2_desc').value,
+            service3_title: document.getElementById('edit_service3_title').value,
+            service3_desc: document.getElementById('edit_service3_desc').value,
+            service4_title: document.getElementById('edit_service4_title').value,
+            service4_desc: document.getElementById('edit_service4_desc').value,
+            footer_copy: document.getElementById('edit_footer_copy').value
+        };
+        await saveContent(obj);
+    });
+
+    document.getElementById('save_contact').addEventListener('click', async ()=>{
+        const obj = { 
+            phone: document.getElementById('edit_contact_phone').value, 
+            address: document.getElementById('edit_contact_address').value, 
+            insta: document.getElementById('edit_contact_insta').value, 
+            stat1: document.getElementById('edit_stat1').value, 
+            stat2: document.getElementById('edit_stat2').value, 
+            stat3: document.getElementById('edit_stat3').value, 
+            stat4: document.getElementById('edit_stat4').value 
+        };
+        await saveContact(obj);
+    });
+
+    document.getElementById('save_about').addEventListener('click', async ()=>{
+        const content = await loadContent();
+        content.footer_copy = document.getElementById('edit_footer_copy').value;
+        await saveContent(content);
+    });
+
+    document.getElementById('add_occasion').addEventListener('click', async ()=>{ 
+        const v=document.getElementById('new_occasion_input').value.trim(); 
+        if(!v) return showAlert('Enter occasion name', 'error'); 
+        const list = await loadOccasions();
+        list.push(v); 
+        await saveOccasions(list);
+        document.getElementById('new_occasion_input').value=''; 
+    });
+
+    // Photo upload handlers
+    document.addEventListener('change', async function(e){
+        if (e.target && e.target.id === 'photo_input'){
+            const files = Array.from(e.target.files || []);
+            if (!files.length) return;
+            
+            for (const f of files){
+                if (!f.type.startsWith('image/')) continue;
+                await uploadImage(f, 'gallery');
+            }
+            
+            await renderGallery();
+            e.target.value='';
+            showAlert('Photos uploaded successfully!', 'success');
+        }
+        
+        if (e.target && e.target.id === 'location_photo_input'){
+            const files = Array.from(e.target.files || []);
+            if (!files.length) return;
+            
+            for (const f of files){
+                if (!f.type.startsWith('image/')) continue;
+                await uploadImage(f, 'location_gallery');
+            }
+            
+            await renderLocationPictures();
+            e.target.value='';
+            showAlert('Location photos uploaded successfully!', 'success');
+        }
+    });
+
+    document.getElementById('photo_clear').addEventListener('click', async ()=>{ 
+        if(confirm('Clear all dress photos?')){ 
+            try {
+                showLoading(true);
+                const files = await listAll(ref(storage, 'gallery'));
+                for (const file of files.items) {
+                    await deleteObject(file);
+                }
+                await renderGallery();
+                showAlert('All photos cleared!', 'success');
+            } catch (error) {
+                showAlert('Error clearing photos: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+    });
+
+    document.getElementById('location_photo_clear').addEventListener('click', async ()=>{ 
+        if(confirm('Clear all location photos?')){ 
+            try {
+                showLoading(true);
+                const files = await listAll(ref(storage, 'location_gallery'));
+                for (const file of files.items) {
+                    await deleteObject(file);
+                }
+                await renderLocationPictures();
+                showAlert('All location photos cleared!', 'success');
+            } catch (error) {
+                showAlert('Error clearing photos: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+    });
+
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+
+    async function initializeApp() {
+        try {
+            showLoading(true);
+            
+            // Load all data
+            const [content, contact, occasions] = await Promise.all([
+                loadContent(),
+                loadContact(),
+                loadOccasions()
+            ]);
+            
+            // Apply to DOM
+            applyContent(content);
+            applyContact(contact);
+            await renderGallery();
+            await renderLocationPictures();
+            await renderOccasions();
+            
+            // Set admin logout button visibility
+            if(sessionStorage.getItem('mayil_admin')) {
+                document.getElementById('nav_logout').style.display='block';
+            }
+            
+            showLoading(false);
+        } catch (error) {
+            console.error('Initialization error:', error);
+            showLoading(false);
+            showAlert('Error loading data. Using defaults.', 'error');
+        }
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', initializeApp);
+
+    // ============================================================================
+    // MOBILE NAV TOGGLE
+    // ============================================================================
+
+    (function(){
+        const navToggle = document.getElementById('nav_toggle');
+        const navList = document.querySelector('nav ul');
+        if(!navToggle || !navList) return;
+        
+        if (window.innerWidth > 768) { 
+            navList.style.display = 'flex'; 
+            navList.style.flexDirection='row'; 
+        } else { 
+            navList.style.display = 'none'; 
+        }
+        
+        navToggle.addEventListener('click', ()=>{
+            const showing = navList.style.display === 'block' || navList.style.display === 'flex' && navList.style.flexDirection === 'column';
+            if (showing) { 
+                navList.style.display = 'none'; 
+                navToggle.textContent = '☰'; 
+            } else { 
+                navList.style.display = 'block'; 
+                navList.style.flexDirection='column'; 
+                navList.style.gap='12px'; 
+                navList.style.padding='12px'; 
+                navToggle.textContent = '✕'; 
+            }
+        });
+        
+        document.querySelectorAll('nav ul a').forEach(a=> a.addEventListener('click', ()=>{ 
+            if(window.innerWidth <= 768){ 
+                navList.style.display='none'; 
+                navToggle.textContent='☰'; 
+            } 
+        }));
+        
+        window.addEventListener('resize', ()=>{ 
+            if(window.innerWidth > 768){ 
+                navList.style.display='flex'; 
+                navList.style.flexDirection='row'; 
+                navToggle.textContent='☰'; 
+            } else { 
+                navList.style.display='none'; 
+            } 
+        });
+    })();
+
+    // ============================================================================
+    // EXPORT FOR GLOBAL ACCESS (if needed in HTML onclick handlers)
+    // ============================================================================
+    window.firebaseApp = { initializeApp: initializeApp };
+
+</script>
+</body>
+</html>
