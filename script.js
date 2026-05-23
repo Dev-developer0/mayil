@@ -286,7 +286,8 @@ saveContentBtn.addEventListener('click', async () => {
     updatedAt: serverTimestamp()
   };
   try {
-    await setDoc(doc(db, 'site', 'content'), payload, { merge: true });
+    // Save content to Firestore collection `content`, document `main`
+    await setDoc(doc(db, 'content', 'main'), payload, { merge: true });
     alert('Content saved');
     await loadSiteContent();
   } catch (err) {
@@ -297,7 +298,8 @@ saveContentBtn.addEventListener('click', async () => {
 
 async function loadSiteContent() {
   try {
-    const snap = await getDoc(doc(db, 'site', 'content'));
+    // Read content from Firestore collection `content`, document `main`
+    const snap = await getDoc(doc(db, 'content', 'main'));
     if (!snap.exists()) return;
     const data = snap.data();
     if (data.hero_title) document.getElementById('hero_title').innerHTML = data.hero_title;
@@ -341,7 +343,8 @@ saveContactBtn.addEventListener('click', async () => {
     updatedAt: serverTimestamp()
   };
   try {
-    await setDoc(doc(db, 'site', 'contact'), payload, { merge: true });
+    // Save contact and settings to Firestore collection `settings`, document `main`
+    await setDoc(doc(db, 'settings', 'main'), payload, { merge: true });
     alert('Contact saved');
     await loadContact();
   } catch (err) {
@@ -352,7 +355,8 @@ saveContactBtn.addEventListener('click', async () => {
 
 async function loadContact() {
   try {
-    const snap = await getDoc(doc(db, 'site', 'contact'));
+    // Read contact and settings from Firestore collection `settings`, document `main`
+    const snap = await getDoc(doc(db, 'settings', 'main'));
     if (!snap.exists()) return;
     const data = snap.data();
     if (data.phone) { $('#contact_phone').innerText = data.phone; $('#contact_phone').href = 'tel:' + data.phone.replace(/\s+/g, ''); }
