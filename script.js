@@ -41,6 +41,8 @@ const saveAboutBtn = $('#save_about');
 const galleryGrid = $('#gallery_grid');
 const locationPictures = $('#location_pictures');
 const occasionsList = $('#occasions_list');
+const navToggleBtn = $('#nav_toggle');
+const navMenu = document.querySelector('nav ul');
 
 const ADMIN_PASSWORD = 'mayil2024';
 const LS_KEYS = {
@@ -115,6 +117,23 @@ function requireLogin() {
 adminToggle.addEventListener('click', openAdmin);
 adminCloseBtn.addEventListener('click', closeAdmin);
 adminPanelCloseBtn?.addEventListener('click', closeAdmin);
+navToggleBtn?.addEventListener('click', () => {
+  if (!navMenu) return;
+  navMenu.classList.toggle('open');
+  navToggleBtn.classList.toggle('open');
+});
+
+if (navMenu) {
+  navMenu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (navMenu.classList.contains('open')) {
+        navMenu.classList.remove('open');
+        navToggleBtn?.classList.remove('open');
+      }
+    });
+  });
+}
+
 adminNav.addEventListener('click', (e) => {
   if (!e.target.dataset?.tab) return;
   const tab = e.target.dataset.tab;
@@ -215,10 +234,19 @@ function renderAdminThumbs(collectionName, containerEl) {
   if (!containerEl) return;
   const items = getLocal(LS_KEYS[collectionName], []);
   containerEl.innerHTML = '';
-  items.forEach((item) => {
+  items.forEach((item, index) => {
+    const labelMap = {
+      hero: 'Slide',
+      featured: 'Featured',
+      clients: 'Client',
+      gallery: 'Gallery',
+      location: 'Location'
+    };
+    const prefix = labelMap[collectionName] || 'Image';
     const div = document.createElement('div');
     div.className = 'thumb';
     div.innerHTML = `
+      <div class="thumb-label">${prefix} ${index + 1}</div>
       <img src="${item.url}" alt="${item.name}" loading="lazy">
       <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
         <button data-id="${item.id}" data-collection="${collectionName}" class="btn btn-replace">Replace</button>

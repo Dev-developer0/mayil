@@ -535,8 +535,24 @@ footer p { font-family: 'Cormorant Garamond', serif; color: #666; font-size: 0.8
 ::selection { background: rgba(0, 0, 0, 0.2); color: white; }
 
 @media (max-width: 768px) {
-    nav ul { display: none; }
-    nav { padding: 16px 25px; }
+    nav { position: relative; padding: 16px 25px; }
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px 18px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        border-radius: 0 0 18px 18px;
+        z-index: 1000;
+    }
+    nav ul.open { display: flex; }
+    nav ul li { margin-bottom: 12px; }
+    nav ul li:last-child { margin-bottom: 0; }
+    nav ul a { display: block; padding: 12px 0; }
     .nav-toggle { display: inline-flex; align-items:center; gap:8px; }
     .hero { min-height: 100svh; }
     .hero-content { padding: 0 22px; }
@@ -656,3 +672,9 @@ footer p { font-family: 'Cormorant Garamond', serif; color: #666; font-size: 0.8
 .field label { display:block; font-size:0.8rem; color:#dca0c8; margin-bottom:8px; letter-spacing:2px; text-transform: uppercase; font-weight: 700; font-family: 'Cormorant Garamond', serif; }
 .field input[type="text"], .field input[type="tel"], .field textarea, .field select { width:100%; padding:12px; background: rgba(220, 160, 200, 0.04); border:1px solid rgba(220, 160, 200, 0.2); color:#e8dcc6; border-radius:8px; font-family: 'Cormorant Garamond', serif; transition: all 0.3s ease; font-size: 0.9rem; }
 .field textarea { min-height:80px; }
+.upload-note { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-top: 6px; margin-bottom: 10px; line-height: 1.4; }
+.thumbs { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.thumb { border: 1px solid rgba(220, 160, 200, 0.18); padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.04); margin-bottom: 12px; width: calc(50% - 6px); max-width: 240px; }
+.thumb img { width: 100%; height: auto; border-radius: 10px; display: block; }
+.thumb-label { font-size: 0.85rem; font-weight: 700; color: #f0d7f0; margin-bottom: 8px; }
+
