@@ -14,7 +14,7 @@
     <title>Mayil Designer Studio - Dress Rentals & Customization</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -307,14 +307,20 @@
 <div class="admin-panel" id="admin_panel">
     <div class="admin-card">
         <div class="admin-header">
-            <div class="admin-title">Mayil Admin</div>
-            <div style="color:#e8dcc6; font-size:0.9rem">Manage site — changes saved locally</div>
+            <div>
+                <div class="admin-title">Mayil Admin</div>
+                <div style="color:#e8dcc6; font-size:0.9rem">Manage site — changes saved locally</div>
+            </div>
+            <button class="btn admin-panel-close" id="admin_panel_close_btn" aria-label="Close admin panel">Close</button>
         </div>
         <div class="admin-body">
             <div class="admin-nav" id="admin_nav">
                 <button data-tab="login" id="nav_login">Login</button>
                 <button data-tab="photos" id="nav_photos">Photos</button>
                 <button data-tab="location" id="nav_location">Location Photos</button>
+                <button data-tab="hero" id="nav_hero">Slideshow</button>
+                <button data-tab="featured" id="nav_featured">Featured</button>
+                <button data-tab="clients" id="nav_clients">Client Transformations</button>
                 <button data-tab="content" id="nav_content">Content</button>
                 <button data-tab="contact" id="nav_contact">Contact</button>
                 <button data-tab="occasions" id="nav_occasions">Occasions</button>
@@ -356,6 +362,48 @@
                         <div class="thumbs" id="location_photo_thumbs"></div>
                     </div>
                     <div class="field"><button class="btn" id="location_photo_clear">Clear All Photos</button></div>
+                </div>
+
+                <!-- hero slideshow -->
+                <div id="admin_hero" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Hero Slideshow Images</h3>
+                    <div class="field">
+                        <label>Upload Slideshow Images</label>
+                        <input type="file" id="hero_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Slide Images</label>
+                        <div class="thumbs" id="hero_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="hero_photo_clear">Clear All Slideshow</button></div>
+                </div>
+
+                <!-- featured collection -->
+                <div id="admin_featured" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Featured Collection Images</h3>
+                    <div class="field">
+                        <label>Upload Featured Images</label>
+                        <input type="file" id="featured_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Featured Images</label>
+                        <div class="thumbs" id="featured_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="featured_photo_clear">Clear All Featured</button></div>
+                </div>
+
+                <!-- client transformations -->
+                <div id="admin_clients" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Client Transformation Images</h3>
+                    <div class="field">
+                        <label>Upload Client Transformation Images</label>
+                        <input type="file" id="client_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Uploaded Client Images</label>
+                        <div class="thumbs" id="client_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="client_photo_clear">Clear All Client Images</button></div>
                 </div>
 
                 <!-- content -->
@@ -443,3 +491,4 @@
 </script>
 </body>
 </html>
+

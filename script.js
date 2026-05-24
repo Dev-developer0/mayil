@@ -11,6 +11,7 @@ const navLogout = $('#nav_logout');
 const adminLoginBtn = $('#admin_login_btn');
 const adminPassInput = $('#admin_pass');
 const adminCloseBtn = $('#admin_close_btn');
+const adminPanelCloseBtn = $('#admin_panel_close_btn');
 
 const photoInput = $('#photo_input');
 const photoThumbs = $('#photo_thumbs');
@@ -19,6 +20,18 @@ const photoClear = $('#photo_clear');
 const locationPhotoInput = $('#location_photo_input');
 const locationPhotoThumbs = $('#location_photo_thumbs');
 const locationPhotoClear = $('#location_photo_clear');
+
+const heroPhotoInput = $('#hero_photo_input');
+const heroPhotoThumbs = $('#hero_photo_thumbs');
+const heroPhotoClear = $('#hero_photo_clear');
+
+const featuredPhotoInput = $('#featured_photo_input');
+const featuredPhotoThumbs = $('#featured_photo_thumbs');
+const featuredPhotoClear = $('#featured_photo_clear');
+
+const clientPhotoInput = $('#client_photo_input');
+const clientPhotoThumbs = $('#client_photo_thumbs');
+const clientPhotoClear = $('#client_photo_clear');
 
 const saveContentBtn = $('#save_content');
 const saveContactBtn = $('#save_contact');
@@ -36,6 +49,9 @@ const LS_KEYS = {
   occasions: 'mayil_occasions',
   gallery: 'mayil_gallery',
   location: 'mayil_location',
+  hero: 'mayil_hero_slides',
+  featured: 'mayil_featured_images',
+  clients: 'mayil_client_images',
   about: 'mayil_about'
 };
 
@@ -98,6 +114,7 @@ function requireLogin() {
 
 adminToggle.addEventListener('click', openAdmin);
 adminCloseBtn.addEventListener('click', closeAdmin);
+adminPanelCloseBtn?.addEventListener('click', closeAdmin);
 adminNav.addEventListener('click', (e) => {
   if (!e.target.dataset?.tab) return;
   const tab = e.target.dataset.tab;
@@ -157,11 +174,41 @@ async function uploadFilesToCollection(files, collectionName) {
 
 photoInput.addEventListener('change', (event) => uploadFilesToCollection(event.target.files, 'gallery'));
 locationPhotoInput.addEventListener('change', (event) => uploadFilesToCollection(event.target.files, 'location'));
+heroPhotoInput.addEventListener('change', (event) => uploadFilesToCollection(event.target.files, 'hero'));
+featuredPhotoInput.addEventListener('change', (event) => uploadFilesToCollection(event.target.files, 'featured'));
+clientPhotoInput.addEventListener('change', (event) => uploadFilesToCollection(event.target.files, 'clients'));
+
+heroPhotoClear.addEventListener('click', () => {
+  if (!confirm('Delete all slideshow images?')) return;
+  setLocal(LS_KEYS.hero, []);
+  refreshAdminLists();
+  renderHeroSlides();
+});
+
+featuredPhotoClear.addEventListener('click', () => {
+  if (!confirm('Delete all featured images?')) return;
+  setLocal(LS_KEYS.featured, []);
+  refreshAdminLists();
+  renderFeaturedCollection();
+});
+
+clientPhotoClear.addEventListener('click', () => {
+  if (!confirm('Delete all client images?')) return;
+  setLocal(LS_KEYS.clients, []);
+  refreshAdminLists();
+  renderClientTransformations();
+});
 
 function refreshAdminLists() {
   renderAdminThumbs('gallery', photoThumbs);
   renderAdminThumbs('location', locationPhotoThumbs);
+  renderAdminThumbs('hero', heroPhotoThumbs);
+  renderAdminThumbs('featured', featuredPhotoThumbs);
+  renderAdminThumbs('clients', clientPhotoThumbs);
   renderOccasionsAdmin();
+  renderHeroSlides();
+  renderFeaturedCollection();
+  renderClientTransformations();
 }
 
 function renderAdminThumbs(collectionName, containerEl) {
@@ -273,6 +320,53 @@ function renderGalleryOnSite() {
       div.className = 'picture-item';
       div.innerHTML = `<img src="${item.url}" loading="lazy" alt="${item.name}">`;
       locationPictures.appendChild(div);
+    }
+  });
+  renderHeroSlides();
+  renderFeaturedCollection();
+}
+
+function renderHeroSlides() {
+  const slides = getLocal(LS_KEYS.hero, []);
+  const slideContainer = document.querySelector('.hero-slides');
+  const dotContainer = document.querySelector('.hero-dots');
+  if (!slideContainer || !dotContainer) return;
+  if (!slides.length) return;
+  slideContainer.innerHTML = '';
+  dotContainer.innerHTML = '';
+  slides.forEach((item, index) => {
+    const slide = document.createElement('div');
+    slide.className = `hero-slide${index === 0 ? ' active' : ''}`;
+    slide.style.backgroundImage = `url('${item.url}')`;
+    slideContainer.appendChild(slide);
+
+    const dot = document.createElement('span');
+    dot.className = `hero-dot${index === 0 ? ' active' : ''}`;
+    dot.dataset.index = index;
+    dotContainer.appendChild(dot);
+  });
+}
+
+function renderFeaturedCollection() {
+  const featuredItems = getLocal(LS_KEYS.featured, []);
+  const featuredImages = document.querySelectorAll('.collection-grid .collection-image img');
+  if (!featuredImages.length || !featuredItems.length) return;
+  featuredImages.forEach((img, index) => {
+    if (featuredItems[index]) {
+      img.src = featuredItems[index].url;
+      img.alt = featuredItems[index].name || img.alt;
+    }
+  });
+}
+
+function renderClientTransformations() {
+  const clientItems = getLocal(LS_KEYS.clients, []);
+  if (!clientItems.length) return;
+  const clientImages = document.querySelectorAll('.gallery-grid .gallery-item img');
+  clientImages.forEach((img, index) => {
+    if (clientItems[index]) {
+      img.src = clientItems[index].url;
+      img.alt = clientItems[index].name || img.alt;
     }
   });
 }
