@@ -1,0 +1,499 @@
+<!--
+  index.html — Mayil Designer Studio
+  Single-file demo (open in browser). Admin demo password: mayil2024
+  Features: responsive layout, local admin panel (saves to localStorage),
+  gallery upload (stores data-URLs), WhatsApp enquiry prefill.
+  To test: open this file in a browser. Click the small gear icon (bottom-right)
+  to open admin. Login with password above, edit content and upload images.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayil Designer Studio - Dress Rentals & Customization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav>
+    <div class="logo"><img src="assets/Images/Mayil Logo (Logo).png" alt="Mayil Designer Studio Logo"><span>Designer Studio</span></div>
+    <button class="nav-toggle" id="nav_toggle" aria-label="Menu">☰</button>
+    <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#occasions">Occasions</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#location">Location</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <!-- Slideshow slides -->
+    <div class="hero-slides">
+        <div class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1600&q=90')"></div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=1600&q=90')"></div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1594938298603-c8148c4b4571?w=1600&q=90')"></div>
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1519657337289-077653f724ed?w=1600&q=90')"></div>
+    </div>
+    <!-- Dark gradient overlay -->
+    <div class="hero-overlay"></div>
+    <!-- Content centred over slides -->
+    <div class="hero-content">
+        <p class="hero-tag">✦ Visakhapatnam's Premier Studio ✦</p>
+        <h1 id="hero_title">Wear the <em>Dream,</em><br>Own the Moment</h1>
+        <p class="hero-sub" id="hero_sub">Dress Rentals & Custom Design</p>
+        <p id="hero_text">From pre-wedding shoots to maternity sessions — we dress you for every chapter of your story.</p>
+        <div class="btn-group">
+            <a href="https://wa.me/918074797081" class="btn-primary" target="_blank">Book a Trial →</a>
+            <a href="#services" class="btn-outline-hero">Explore Collection</a>
+        </div>
+    </div>
+    <!-- Dot indicators -->
+    <div class="hero-dots">
+        <span class="hero-dot active" data-index="0"></span>
+        <span class="hero-dot" data-index="1"></span>
+        <span class="hero-dot" data-index="2"></span>
+        <span class="hero-dot" data-index="3"></span>
+    </div>
+    <!-- Prev / Next arrows -->
+    <button class="hero-arrow hero-prev" aria-label="Previous slide">&#8592;</button>
+    <button class="hero-arrow hero-next" aria-label="Next slide">&#8594;</button>
+    <!-- Scroll hint -->
+    <div class="scroll-hint">↓ Scroll</div>
+</section>
+
+    <div class="stats">
+    <div class="stat"><div class="stat-number" id="stat1">3,976+</div><div class="stat-label">Happy Clients</div></div>
+    <div class="stat"><div class="stat-number" id="stat2">638+</div><div class="stat-label">Dress Collection</div></div>
+    <div class="stat"><div class="stat-number" id="stat3">100%</div><div class="stat-label">Walk-in Welcome</div></div>
+    <div class="stat"><div class="stat-number" id="stat4">Vizag</div><div class="stat-label">Based & Serving</div></div>
+</div>
+
+<section class="section featured-collection">
+    <div class="section-header">
+        <p class="section-tag">✦ Featured Collection ✦</p>
+        <h2>Trending This Season</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="collection-grid">
+        <div class="collection-item">
+            <div class="collection-image">
+                <img src="https://images.unsplash.com/photo-1519657337289-077653f724ed?w=600&q=80" alt="Bridal Collection" loading="lazy">
+                <div class="collection-overlay">
+                    <h3>Bridal Wear</h3>
+                    <p>Elegant designs for your special day</p>
+                </div>
+            </div>
+        </div>
+        <div class="collection-item">
+            <div class="collection-image">
+                <img src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80" alt="Party Wear Collection" loading="lazy">
+                <div class="collection-overlay">
+                    <h3>Party Wear</h3>
+                    <p>Stunning outfits for every celebration</p>
+                </div>
+            </div>
+        </div>
+        <div class="collection-item">
+            <div class="collection-image">
+                <img src="https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=600&q=80" alt="Casual Collection" loading="lazy">
+                <div class="collection-overlay">
+                    <h3>Casual Wear</h3>
+                    <p>Comfortable yet stylish everyday looks</p>
+                </div>
+            </div>
+        </div>
+        <div class="collection-item">
+            <div class="collection-image">
+                <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=600&q=80" alt="Maternity Collection" loading="lazy">
+                <div class="collection-overlay">
+                    <h3>Maternity Wear</h3>
+                    <p>Beautiful designs for expecting mothers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="collection-cta">
+        <a href="#contact" class="btn-primary">View Full Collection →</a>
+    </div>
+</section>
+
+<!-- <section class="section" id="services"> -->
+    
+        <div class="section-header">
+        <p class="section-tag">✦ What We Offer ✦</p>
+        <h2>Our Services</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="services-grid">
+        <div class="service-card"><div class="service-icon">👗</div><h3 id="service1_title">Dress Rentals</h3><p id="service1_desc">Choose from our stunning collection of 638+ dresses for any occasion. Affordable rentals so you look extraordinary without the full price tag.</p></div>
+        <div class="service-card"><div class="service-icon">✂️</div><h3 id="service2_title">Custom Designing</h3><p id="service2_desc">Have a vision in mind? Our expert designers will craft your dream outfit tailored perfectly to your style, size, and occasion.</p></div>
+        <div class="service-card"><div class="service-icon">📸</div><h3 id="service3_title">Shoot Styling</h3><p id="service3_desc">Pre-wedding, post-wedding, and maternity shoots — we dress you for your most photographed moments with elegance and grace.</p></div>
+        <div class="service-card"><div class="service-icon">🚶‍♀️</div><h3 id="service4_title">Walk-in Trial</h3><p id="service4_desc">Visit our studio in Vizag and try outfits before you decide. Feel absolutely perfect before stepping out.</p></div>
+    </div>
+</section>
+
+<section class="section occasions" id="occasions">
+    <div class="section-header">
+        <p class="section-tag">✦ Every Occasion ✦</p>
+        <h2>Dressed for Every Moment</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="occasions-grid" id="occasions_list">
+        <!-- Dynamically populated from localStorage -->
+    </div>
+</section>
+
+<section class="section" id="how">
+    <div class="section-header">
+        <p class="section-tag">✦ Simple Process ✦</p>
+        <h2>How It Works</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="steps">
+        <div class="step"><div class="step-number">1</div><h4>Contact Us</h4><p>WhatsApp or call us to discuss your occasion and requirements</p></div>
+        <div class="step"><div class="step-number">2</div><h4>Walk-in Trial</h4><p>Visit our Vizag studio and try your favourite outfits in person</p></div>
+        <div class="step"><div class="step-number">3</div><h4>Pick Your Look</h4><p>Choose the perfect dress from our 638+ stunning collection</p></div>
+        <div class="step"><div class="step-number">4</div><h4>Shine & Slay</h4><p>Step out looking absolutely stunning for your special day</p></div>
+    </div>
+</section>
+
+<section class="section location" id="location">
+    <div class="section-header">
+        <p class="section-tag">✦ Visit Our Studio ✦</p>
+        <h2>Find Us on the Map</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="location-content">
+        <div class="location-map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3824.3098699878344!2d83.29019!3d17.68659!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a395180b7e0b0f9%3A0x1a1a1a1a1a1a1a1a!2sMayil%20Designer%20Studio!5e0!3m2!1sen!2sin!4v1234567890" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <div class="location-info">
+            <h3>📍 Visit Our Studio</h3>
+            <div class="location-detail">
+                <h4>Address</h4>
+                <p id="loc_address">D No 1-1-78/1, Honda Showroom Line,<br>Vivekananda Colony, Akkireddypalem,<br>Visakhapatnam, Andhra Pradesh 530012, India</p>
+            </div>
+            <div class="location-detail">
+                <h4>Phone</h4>
+                <p><a href="tel:+918074797081" id="loc_phone">+91 80747 97081</a></p>
+            </div>
+            <div class="location-detail">
+                <h4>Working Hours</h4>
+                <p>Monday - Saturday: 10:00 AM - 7:00 PM<br>Sunday: 11:00 AM - 6:00 PM</p>
+            </div>
+            <a href="https://maps.google.com/?q=Mayil+Designer+Studio+Visakhapatnam" target="_blank" class="directions-btn">📍 Get Directions</a>
+            <a href="https://wa.me/918074797081?text=Hi! I'm interested in visiting your studio for a trial." target="_blank" class="directions-btn" style="background: linear-gradient(135deg, #25D366, #1da851); margin-left: 12px;">💬 Message on WhatsApp</a>
+        </div>
+    </div>
+
+    <div class="location-pictures">
+        <h4>Studio Gallery</h4>
+        <div class="pictures-grid" id="location_pictures">
+            <!-- Location pictures will be loaded here -->
+        </div>
+    </div>
+</section>
+
+<section class="section gallery">
+    <div class="section-header">
+        <p class="section-tag">✦ Our Work ✦</p>
+        <h2>Client Transformations</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="gallery-grid">
+        <div class="gallery-item large">
+            <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80" alt="Client in elegant dress" loading="lazy">
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80" alt="Fashion shoot" loading="lazy">
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80" alt="Bridal look" loading="lazy">
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80" alt="Party wear" loading="lazy">
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=80" alt="Maternity session" loading="lazy">
+        </div>
+        <div class="gallery-item wide">
+            <img src="https://images.unsplash.com/photo-1558171813-3a5e1c31def2?w=900&q=80" alt="Designer collection showcase" loading="lazy">
+        </div>
+    </div>
+</section>
+
+<section class="section instagram">
+    <div class="section-header">
+        <p class="section-tag">✦ Follow Our Journey ✦</p>
+        <h2>@mayilbysravani0</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="insta-placeholder" id="gallery_grid">
+        <!-- Gallery populated from localStorage photos -->
+    </div>
+    <a href="https://instagram.com/mayilbysravani0" class="insta-link" id="contact_insta_link" target="_blank">→ View Full Collection on Instagram</a>
+</section>
+
+<section class="section" id="contact">
+    <div class="section-header">
+        <p class="section-tag">✦ Get In Touch ✦</p>
+        <h2>Visit or Contact Us</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="contact-grid">
+        <div class="contact-info">
+            <h3>We'd love to dress you.</h3>
+            <div class="contact-item">
+                <div class="contact-icon">📍</div>
+                <div>
+                    <h4>Studio Address</h4>
+                    <p id="contact_address">D No 1-1-78/1, Honda Showroom Line,<br>Vivekananda Colony, Akkireddypalem,<br>Visakhapatnam, Andhra Pradesh 530012, India</p>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">📞</div>
+                <div>
+                    <h4>Phone & WhatsApp</h4>
+                    <a id="contact_phone" href="tel:+918074797081">+91 80747 97081</a>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon">📸</div>
+                <div>
+                    <h4>Instagram</h4>
+                    <a id="contact_insta_text" href="https://instagram.com/mayilbysravani0" target="_blank">@mayilbysravani0</a>
+                </div>
+            </div>
+            <a href="https://wa.me/918074797081?text=Hi! I'd like to book a trial at Mayil Designer Studio." class="whatsapp-btn" target="_blank">💬 Chat on WhatsApp</a>
+        </div>
+        <div class="contact-form">
+            <h3>Quick Enquiry</h3>
+            <div class="form-group"><input type="text" id="fname" placeholder="Your Name"></div>
+            <div class="form-group"><input type="tel" id="fphone" placeholder="Your Phone Number"></div>
+            <div class="form-group">
+                <select id="foccasion">
+                    <option value="" disabled selected>Select Occasion</option>
+                    <option>Pre-Wedding Shoot</option>
+                    <option>Post-Wedding Shoot</option>
+                    <option>Maternity Shoot</option>
+                    <option>Function / Event</option>
+                    <option>Custom Design</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="form-group"><textarea id="fmsg" placeholder="Any specific requirements or questions?"></textarea></div>
+            <button class="form-submit" onclick="sendWhatsApp()">Send Enquiry via WhatsApp</button>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-logo">Mayil<span>Designer Studio · Visakhapatnam</span></div>
+    <p id="footer_copy">© 2024 Mayil Designer Studio by Sravani. All rights reserved.</p>
+    <p style="margin-top: 8px;">Rental Dress Vizag · Custom Designing · Pre & Post Wedding · Maternity Shoots</p>
+</footer>
+
+<!-- Admin toggle button (small) -->
+<div class="admin-toggle" id="admin_toggle" title="Admin">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" fill="#c9a84c"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06A2 2 0 0 1 2.3 17.88l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.65 0 1.23-.39 1.5-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 0 1 6.12 2.3l.06.06a1.65 1.65 0 0 0 1.82.33H8a1.65 1.65 0 0 0 1-1.5V2a2 2 0 1 1 4 0v.09c0 .57.37 1.09 1 1.5h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06A2 2 0 0 1 21.7 6.12l-.06.06a1.65 1.65 0 0 0-.33 1.82V8c.65.27 1 0 1 0H21a2 2 0 1 1 0 4h-.09c-.57 0-1.09.37-1.5 1z" fill="#c9a84c"/></svg>
+</div>
+
+<!-- Admin panel -->
+<div class="admin-panel" id="admin_panel">
+    <div class="admin-card">
+        <div class="admin-header">
+            <div>
+                <div class="admin-title">Mayil Admin</div>
+                <div style="color:#e8dcc6; font-size:0.9rem">Manage site — changes saved locally</div>
+            </div>
+            <button class="btn admin-panel-close" id="admin_panel_close_btn" aria-label="Close admin panel">Close</button>
+        </div>
+        <div class="admin-body">
+            <div class="admin-nav" id="admin_nav">
+                <button data-tab="login" id="nav_login">Login</button>
+                <button data-tab="photos" id="nav_photos">Photos</button>
+                <button data-tab="location" id="nav_location">Location Photos</button>
+                <button data-tab="hero" id="nav_hero">Slideshow</button>
+                <button data-tab="featured" id="nav_featured">Featured</button>
+                <button data-tab="clients" id="nav_clients">Client Transformations</button>
+                <button data-tab="content" id="nav_content">Content</button>
+                <button data-tab="contact" id="nav_contact">Contact</button>
+                <button data-tab="occasions" id="nav_occasions">Occasions</button>
+                <button data-tab="about" id="nav_about">About</button>
+                <button data-tab="logout" id="nav_logout" style="color:#c9a84c; display:none;">Logout</button>
+            </div>
+            <div class="admin-panel-section" id="admin_section">
+                <!-- login -->
+                <div id="admin_login" class="admin-subsection login-box">
+                    <h3 style="color:#c9a84c; margin-bottom:10px;">Admin Login</h3>
+                    <input type="password" id="admin_pass" placeholder="Enter password">
+                    <div style="display:flex; gap:8px;"><button class="btn" id="admin_login_btn">Login</button><button class="btn" id="admin_close_btn">Close</button></div>
+                    <p style="font-size:0.8rem; color:#bba87a; margin-top:10px;">Tip: password is provided by developer.</p>
+                </div>
+
+                <!-- photos -->
+                <div id="admin_photos" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Dress Photos</h3>
+                    <div class="field">
+                        <label>Upload Photos</label>
+                        <div class="upload-note">Recommended upload size: 900×900 px. Use square images for the gallery.</div>
+                        <input type="file" id="photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Uploaded</label>
+                        <div class="thumbs" id="photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="photo_clear">Clear All Photos</button></div>
+                </div>
+
+                <!-- location photos -->
+                <div id="admin_location" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Studio & Location Photos</h3>
+                    <div class="field">
+                        <label>Upload Location Photos</label>
+                        <div class="upload-note">Recommended upload size: 1200×800 px. Use landscape images for clean map and location layout.</div>
+                        <input type="file" id="location_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Uploaded Photos</label>
+                        <div class="thumbs" id="location_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="location_photo_clear">Clear All Photos</button></div>
+                </div>
+
+                <!-- hero slideshow -->
+                <div id="admin_hero" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Hero Slideshow Images</h3>
+                    <div class="field">
+                        <label>Upload Slideshow Images</label>
+                        <div class="upload-note">Recommended upload size: 1600×900 px. Use high-quality wide images for the hero slider.</div>
+                        <input type="file" id="hero_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Slide Images</label>
+                        <div class="thumbs" id="hero_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="hero_photo_clear">Clear All Slideshow</button></div>
+                </div>
+
+                <!-- featured collection -->
+                <div id="admin_featured" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Featured Collection Images</h3>
+                    <div class="field">
+                        <label>Upload Featured Images</label>
+                        <div class="upload-note">Recommended upload size: 900×900 px. Use bright, crisp images for the featured collection cards.</div>
+                        <input type="file" id="featured_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Featured Images</label>
+                        <div class="thumbs" id="featured_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="featured_photo_clear">Clear All Featured</button></div>
+                </div>
+
+                <!-- client transformations -->
+                <div id="admin_clients" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Client Transformation Images</h3>
+                    <div class="field">
+                        <label>Upload Client Transformation Images</label>
+                        <div class="upload-note">Recommended upload size: 800×800 px. Use clear client photos that show before and after styling.</div>
+                        <input type="file" id="client_photo_input" accept="image/*" multiple>
+                    </div>
+                    <div class="field">
+                        <label>Uploaded Client Images</label>
+                        <div class="thumbs" id="client_photo_thumbs"></div>
+                    </div>
+                    <div class="field"><button class="btn" id="client_photo_clear">Clear All Client Images</button></div>
+                </div>
+
+                <!-- content -->
+                <div id="admin_content" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Text Content</h3>
+                    <div class="field"><label>Hero Title</label><input type="text" id="edit_hero_title"></div>
+                    <div class="field"><label>Hero Subtitle</label><input type="text" id="edit_hero_sub"></div>
+                    <div class="field"><label>Hero Text</label><textarea id="edit_hero_text"></textarea></div>
+                    <div class="field"><label>Service 1 Title</label><input type="text" id="edit_service1_title"></div>
+                    <div class="field"><label>Service 1 Description</label><textarea id="edit_service1_desc"></textarea></div>
+                    <div class="field"><label>Service 2 Title</label><input type="text" id="edit_service2_title"></div>
+                    <div class="field"><label>Service 2 Description</label><textarea id="edit_service2_desc"></textarea></div>
+                    <div class="field"><label>Service 3 Title</label><input type="text" id="edit_service3_title"></div>
+                    <div class="field"><label>Service 3 Description</label><textarea id="edit_service3_desc"></textarea></div>
+                    <div class="field"><label>Service 4 Title</label><input type="text" id="edit_service4_title"></div>
+                    <div class="field"><label>Service 4 Description</label><textarea id="edit_service4_desc"></textarea></div>
+                    <div class="field"><button class="btn" id="save_content">Save Content</button></div>
+                </div>
+
+                <!-- contact -->
+                <div id="admin_contact" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Contact & Info</h3>
+                    <div class="field"><label>Phone</label><input type="tel" id="edit_contact_phone"></div>
+                    <div class="field"><label>Address (HTML allowed)</label><textarea id="edit_contact_address"></textarea></div>
+                    <div class="field"><label>Instagram Handle/Link</label><input type="text" id="edit_contact_insta"></div>
+                    <div class="field"><label>Stats - Clients</label><input type="text" id="edit_stat1"></div>
+                    <div class="field"><label>Stats - Collection</label><input type="text" id="edit_stat2"></div>
+                    <div class="field"><label>Stats - Walk-in</label><input type="text" id="edit_stat3"></div>
+                    <div class="field"><label>Stats - Location</label><input type="text" id="edit_stat4"></div>
+                    <div class="field"><button class="btn" id="save_contact">Save Contact</button></div>
+                </div>
+
+                <!-- occasions -->
+                <div id="admin_occasions" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Occasions</h3>
+                    <div class="field"><label>Add Occasion</label><input type="text" id="new_occasion_input"></div>
+                    <div class="field"><button class="btn" id="add_occasion">Add</button></div>
+                    <div class="field"><label>Existing</label><div id="occasions_admin_list"></div></div>
+                </div>
+
+                <div id="admin_about" class="admin-subsection" style="display:none;">
+                    <h3 style="color:#c9a84c; margin-bottom:8px;">Other</h3>
+                    <div class="field"><label>Footer Copyright</label><input type="text" id="edit_footer_copy"></div>
+                    <div class="field"><button class="btn" id="save_about">Save</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+<script>
+(function(){
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots   = document.querySelectorAll('.hero-dot');
+    let current  = 0;
+    let timer;
+
+    function goTo(n) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = (n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+    }
+
+    function autoPlay() {
+        timer = setInterval(() => goTo(current + 1), 5000);
+    }
+
+    function resetTimer() {
+        clearInterval(timer);
+        autoPlay();
+    }
+
+    document.querySelector('.hero-next').addEventListener('click', () => { goTo(current + 1); resetTimer(); });
+    document.querySelector('.hero-prev').addEventListener('click', () => { goTo(current - 1); resetTimer(); });
+
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => { goTo(+dot.dataset.index); resetTimer(); });
+    });
+
+    autoPlay();
+})();
+</script>
+</body>
+</html>
+
