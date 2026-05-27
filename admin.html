@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mayil Studio — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f4f5;
+  --card: #ffffff;
+  --sidebar: #160a18;
+  --sidebar-hover: rgba(220,160,200,0.1);
+  --sidebar-active: rgba(220,160,200,0.18);
+  --accent: #c077a0;
+  --accent-light: #dca0c8;
+  --text: #18181b;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --radius: 12px;
+  --sidebar-w: 240px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+/* ── LOGIN ─────────────────────────────── */
+#loginScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #160a18 0%, #2d1035 100%);
+  padding: 20px;
+}
+.login-card {
+  background: white; border-radius: 20px; padding: 44px 40px;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+}
+.login-logo { text-align: center; margin-bottom: 32px; }
+.login-logo h1 { font-size: 1.6rem; font-weight: 700; color: #160a18; letter-spacing: 1px; }
+.login-logo p { font-size: 0.8rem; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+.login-card label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.login-card input {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+  outline: none; transition: border-color 0.2s; margin-bottom: 18px;
+}
+.login-card input:focus { border-color: var(--accent); }
+.btn-login {
+  width: 100%; padding: 14px; background: #160a18; color: white;
+  border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-login:hover { background: #2d1035; }
+.btn-login:active { transform: scale(0.98); }
+#loginError { color: var(--danger); font-size: 0.85rem; text-align: center; margin-top: 12px; min-height: 20px; }
+
+/* ── APP LAYOUT ─────────────────────────── */
+#adminApp { display: none; height: 100vh; overflow: hidden; }
+.app-layout { display: flex; height: 100%; }
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w); background: var(--sidebar); display: flex;
+  flex-direction: column; flex-shrink: 0; height: 100%;
+  overflow-y: auto; transition: transform 0.3s ease;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-logo h2 { color: #fff; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+.sidebar-logo span { color: var(--accent-light); font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; }
+.sidebar-section { padding: 20px 12px 0; }
+.sidebar-section-title {
+  font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; letter-spacing: 2px; padding: 0 8px;
+  margin-bottom: 8px;
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; background: transparent; border: none;
+  color: rgba(255,255,255,0.65); font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem; font-weight: 500; cursor: pointer;
+  border-radius: 8px; text-align: left;
+  transition: background 0.15s, color 0.15s; margin-bottom: 2px;
+}
+.nav-btn:hover { background: var(--sidebar-hover); color: rgba(255,255,255,0.9); }
+.nav-btn.active { background: var(--sidebar-active); color: #fff; }
+.nav-btn .icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-footer { margin-top: auto; padding: 20px 12px; }
+.btn-logout {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 10px 12px; background: rgba(220,50,50,0.12); border: none;
+  color: #f87171; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  font-weight: 500; cursor: pointer; border-radius: 8px; transition: background 0.15s;
+}
+.btn-logout:hover { background: rgba(220,50,50,0.22); }
+.view-site-btn {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 10px 12px; background: rgba(220,160,200,0.1); border: none;
+  color: var(--accent-light); font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  font-weight: 500; cursor: pointer; border-radius: 8px; margin-bottom: 8px;
+  text-decoration: none; transition: background 0.15s;
+}
+.view-site-btn:hover { background: rgba(220,160,200,0.18); }
+
+/* ── MOBILE HEADER ─────────────────────── */
+.mobile-header {
+  display: none; align-items: center; justify-content: space-between;
+  padding: 14px 18px; background: var(--sidebar); position: sticky; top: 0; z-index: 100;
+}
+.mobile-header h2 { color: #fff; font-size: 1rem; font-weight: 700; }
+.hamburger { background: transparent; border: none; color: rgba(255,255,255,0.7); font-size: 1.4rem; cursor: pointer; padding: 4px; }
+.mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+.mobile-overlay.open { display: block; }
+.sidebar.mobile-open { transform: translateX(0) !important; }
+
+/* ── MAIN CONTENT ────────────────────────── */
+.main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.page { display: none; flex-direction: column; min-height: 100%; }
+.page.active { display: flex; }
+.page-header {
+  background: white; padding: 20px 28px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  position: sticky; top: 0; z-index: 10;
+}
+.page-header h1 { font-size: 1.15rem; font-weight: 700; }
+.page-header p { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+.page-body { padding: 24px 28px; flex: 1; }
+
+/* ── CARDS ───────────────────────────────── */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  border: 1px solid var(--border); margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-header {
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-header h3 { font-size: 0.95rem; font-weight: 600; }
+.card-header p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.card-body { padding: 22px; }
+
+/* ── IMAGE GRID ──────────────────────────── */
+.img-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px; margin-bottom: 16px;
+}
+.img-item {
+  position: relative; aspect-ratio: 1; border-radius: 10px;
+  overflow: hidden; background: var(--bg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.img-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-delete {
+  position: absolute; top: 6px; right: 6px;
+  width: 26px; height: 26px; background: rgba(0,0,0,0.7);
+  color: white; border: none; border-radius: 50%;
+  cursor: pointer; font-size: 0.8rem; display: flex;
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.img-item:hover .img-delete { opacity: 1; }
+.img-item .img-delete { opacity: 0; }
+@media (hover: none) { .img-delete { opacity: 1; } }
+.img-empty {
+  grid-column: 1/-1; text-align: center; padding: 30px;
+  color: var(--muted); font-size: 0.85rem;
+  border: 2px dashed var(--border); border-radius: 10px;
+}
+
+/* ── UPLOAD ZONE ─────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: 10px;
+  padding: 28px 20px; text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s; position: relative;
+  background: #fafafa;
+}
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: #fdf4f9; }
+.upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-zone .uz-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.upload-zone p { font-size: 0.85rem; color: var(--muted); }
+.upload-zone strong { color: var(--accent); }
+
+/* ── PROGRESS ────────────────────────────── */
+.progress-list { margin-top: 12px; }
+.progress-item { margin-bottom: 10px; }
+.progress-item span { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progress-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.2s; }
+
+/* ── FORM FIELDS ─────────────────────────── */
+.form-row { margin-bottom: 18px; }
+.form-row label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.form-row input, .form-row textarea, .form-row select {
+  width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s; background: white; color: var(--text);
+}
+.form-row input:focus, .form-row textarea:focus { border-color: var(--accent); }
+.form-row textarea { min-height: 80px; resize: vertical; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── BUTTONS ─────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none;
+  transition: all 0.15s; text-decoration: none;
+}
+.btn-primary { background: #160a18; color: white; }
+.btn-primary:hover { background: #2d1035; transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-success { background: #dcfce7; color: var(--success); }
+.btn-success:hover { background: #bbf7d0; }
+.btn-danger { background: #fee2e2; color: var(--danger); }
+.btn-danger:hover { background: #fecaca; }
+.btn-ghost { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--border); }
+.btn-sm { padding: 7px 13px; font-size: 0.78rem; }
+.btn-full { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── OCCASIONS ───────────────────────────── */
+.occ-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.occ-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; background: #f3e8f7; color: #7c3aed;
+  border-radius: 20px; font-size: 0.82rem; font-weight: 500;
+}
+.occ-tag button { background: none; border: none; cursor: pointer; color: #7c3aed; font-size: 0.9rem; line-height: 1; padding: 0; margin-left: 2px; }
+.add-occ-row { display: flex; gap: 8px; }
+.add-occ-row input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+.add-occ-row input:focus { border-color: var(--accent); }
+
+/* ── SERVICE CARDS ───────────────────────── */
+.service-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px; }
+.service-item {
+  border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden;
+  cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.service-item:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(192,119,160,0.15); }
+.service-item.selected { border-color: var(--accent); box-shadow: 0 4px 12px rgba(192,119,160,0.25); }
+.service-item img { width: 100%; height: 120px; object-fit: cover; background: var(--bg); }
+.service-item-body { padding: 10px 12px; }
+.service-item-body h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 2px; }
+.service-item-body p { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+/* ── STATS CARDS (dashboard) ─────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.stat-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.stat-card .s-val { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+.stat-card .s-lbl { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+/* ── TOAST ───────────────────────────────── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #18181b; color: white; padding: 12px 22px;
+  border-radius: 10px; font-size: 0.88rem; font-weight: 500;
+  z-index: 9999; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  max-width: 90vw; text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+#toast.success { background: #15803d; }
+#toast.error { background: #b91c1c; }
+
+/* ── LOADING ─────────────────────────────── */
+.spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── MOBILE RESPONSIVE ───────────────────── */
+@media (max-width: 720px) {
+  .sidebar { position: fixed; left: 0; top: 0; height: 100%; z-index: 300; transform: translateX(-100%); }
+  .mobile-header { display: flex; }
+  .main { overflow-y: auto; }
+  .page-header { padding: 16px 18px; position: static; }
+  .page-body { padding: 16px 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .img-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+  .img-delete { opacity: 1; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>Mayil Studio</h1>
+      <p>Admin Dashboard</p>
+    </div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="admin@mayilstudio.com" autocomplete="username">
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn-login" id="loginBtn">Sign In</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- ── ADMIN APP ── -->
+<div id="adminApp">
+  <div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <h2>Mayil Studio</h2>
+        <span>Admin Panel</span>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Overview</div>
+        <button class="nav-btn active" data-page="dashboard"><span class="icon">🏠</span> Dashboard</button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Photos</div>
+        <button class="nav-btn" data-page="slideshow"><span class="icon">🖼️</span> Hero Slideshow</button>
+        <button class="nav-btn" data-page="gallery"><span class="icon">👗</span> Dress Gallery</button>
+        <button class="nav-btn" data-page="featured"><span class="icon">⭐</span> Featured</button>
+        <button class="nav-btn" data-page="clients"><span class="icon">✨</span> Transformations</button>
+        <button class="nav-btn" data-page="location-photos"><span class="icon">📍</span> Studio Photos</button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Content</div>
+        <button class="nav-btn" data-page="services"><span class="icon">✂️</span> Services</button>
+        <button class="nav-btn" data-page="occasions"><span class="icon">🎉</span> Occasions</button>
+        <button class="nav-btn" data-page="text-content"><span class="icon">✏️</span> Text & Copy</button>
+        <button class="nav-btn" data-page="contact"><span class="icon">📞</span> Contact Info</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="index.html" target="_blank" class="view-site-btn">🌐 View Live Site</a>
+        <button class="btn-logout" id="logoutBtn">🚪 Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main" id="mainArea">
+      <!-- Mobile Header -->
+      <div class="mobile-header">
+        <button class="hamburger" id="hamburger">☰</button>
+        <h2 id="mobilePageTitle">Dashboard</h2>
+        <div style="width:32px"></div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div><h1>Dashboard</h1><p>Welcome back to Mayil Studio admin</p></div>
+        </div>
+        <div class="page-body">
+          <div class="stats-row" id="dashStats"></div>
+          <div class="card">
+            <div class="card-header"><div><h3>Quick Actions</h3></div></div>
+            <div class="card-body" style="display:flex;flex-wrap:wrap;gap:10px;">
+              <button class="btn btn-primary" onclick="goTo('slideshow')">🖼️ Upload Hero Images</button>
+              <button class="btn btn-primary" onclick="goTo('gallery')">👗 Add Dress Photos</button>
+              <button class="btn btn-primary" onclick="goTo('services')">✂️ Edit Services</button>
+              <button class="btn btn-primary" onclick="goTo('contact')">📞 Update Contact</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><h3>How to use this panel</h3></div></div>
+            <div class="card-body">
+              <p style="color:var(--muted);font-size:0.87rem;line-height:1.7;">
+                1. Go to each section in the sidebar<br>
+                2. Upload photos by tapping the upload area or dragging images<br>
+                3. Delete photos by tapping the ✕ button on any image<br>
+                4. Changes save instantly to Firebase — your website updates live 🔥
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMAGE SECTIONS (slideshow, gallery, featured, clients, location-photos) -->
+      <div class="page" id="page-slideshow">
+        <div class="page-header"><div><h1>Hero Slideshow</h1><p>Full-screen background images on the homepage</p></div></div>
+        <div class="page-body"><div id="sec-slideshow"></div></div>
+      </div>
+      <div class="page" id="page-gallery">
+        <div class="page-header"><div><h1>Dress Gallery</h1><p>Instagram-style photo gallery</p></div></div>
+        <div class="page-body"><div id="sec-gallery"></div></div>
+      </div>
+      <div class="page" id="page-featured">
+        <div class="page-header"><div><h1>Featured Collection</h1><p>4 featured categories shown on homepage</p></div></div>
+        <div class="page-body"><div id="sec-featured"></div></div>
+      </div>
+      <div class="page" id="page-clients">
+        <div class="page-header"><div><h1>Client Transformations</h1><p>Before/after and styled client photos</p></div></div>
+        <div class="page-body"><div id="sec-clients"></div></div>
+      </div>
+      <div class="page" id="page-location-photos">
+        <div class="page-header"><div><h1>Studio Photos</h1><p>Photos shown in the location section</p></div></div>
+        <div class="page-body"><div id="sec-location-photos"></div></div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="page" id="page-services">
+        <div class="page-header"><div><h1>Services</h1><p>Manage your service cards</p></div></div>
+        <div class="page-body">
+          <div class="card">
+            <div class="card-header"><div><h3>Your Services</h3><p>Click a service to edit it</p></div>
+              <button class="btn btn-primary btn-sm" id="newServiceBtn">+ New Service</button>
+            </div>
+            <div class="card-body">
+              <div class="service-list" id="serviceList"></div>
+            </div>
+          </div>
+          <div class="card" id="serviceEditor" style="display:none">
+            <div class="card-header"><div><h3 id="serviceEditorTitle">Edit Service</h3></div>
+              <button class="btn btn-ghost btn-sm" id="closeServiceEditor">✕ Close</button>
+            </div>
+            <div class="card-body">
+              <div class="form-row"><label>Service Title</label><input type="text" id="svcTitle" placeholder="e.g. Dress Rentals"></div>
+              <div class="form-row"><label>Description</label><textarea id="svcDesc" placeholder="Describe this service..."></textarea></div>
+              <div class="form-row"><label>Service Image</label>
+                <div class="upload-zone" id="svcImgZone">
+                  <input type="file" id="svcImgInput" accept="image/*">
+                  <div class="uz-icon">🖼️</div>
+                  <p><strong>Click to upload</strong> or drag image here</p>
+                </div>
+                <div class="progress-list" id="svcImgProgress"></div>
+                <div id="svcImgPreview" style="margin-top:10px;"></div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary" id="saveServiceBtn">💾 Save Service</button>
+                <button class="btn btn-danger" id="deleteServiceBtn" style="display:none">🗑 Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OCCASIONS -->
+      <div class="page" id="page-occasions">
+        <div class="page-header"><div><h1>Occasions</h1><p>Add occasions shown on the website</p></div></div>
+        <div class="page-body">
+          <div class="card">
+            <div class="card-header"><div><h3>Manage Occasions</h3></div></div>
+            <div class="card-body">
+              <div class="occ-list" id="occList"><p style="color:var(--muted);font-size:0.85rem">No occasions yet.</p></div>
+              <div class="add-occ-row">
+                <input type="text" id="occInput" placeholder="e.g. Pre-Wedding Shoot">
+                <button class="btn btn-primary" id="addOccBtn">+ Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEXT CONTENT -->
+      <div class="page" id="page-text-content">
+        <div class="page-header"><div><h1>Text & Copy</h1><p>Edit homepage text and headings</p></div></div>
+        <div class="page-body">
+          <div class="card">
+            <div class="card-header"><div><h3>Hero Section</h3></div></div>
+            <div class="card-body">
+              <div class="form-row"><label>Main Heading</label><input type="text" id="tc_heroTitle" placeholder="Wear the Dream, Own the Moment"></div>
+              <div class="form-row"><label>Subtitle</label><input type="text" id="tc_heroSub" placeholder="Dress Rentals & Custom Design"></div>
+              <div class="form-row"><label>Hero Description</label><textarea id="tc_heroText" placeholder="From pre-wedding shoots..."></textarea></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><h3>Stats Bar</h3></div></div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="form-row"><label>Stat 1 (Clients)</label><input type="text" id="tc_stat1" placeholder="3,976+"></div>
+                <div class="form-row"><label>Stat 2 (Collection)</label><input type="text" id="tc_stat2" placeholder="638+"></div>
+                <div class="form-row"><label>Stat 3 (Walk-in)</label><input type="text" id="tc_stat3" placeholder="100%"></div>
+                <div class="form-row"><label>Stat 4 (Location)</label><input type="text" id="tc_stat4" placeholder="Vizag"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="saveTextBtn">💾 Save All Text</button>
+        </div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="page" id="page-contact">
+        <div class="page-header"><div><h1>Contact Info</h1><p>Phone, address and social links</p></div></div>
+        <div class="page-body">
+          <div class="card">
+            <div class="card-header"><div><h3>Business Details</h3></div></div>
+            <div class="card-body">
+              <div class="form-row"><label>Phone / WhatsApp</label><input type="tel" id="ct_phone" placeholder="+91 80747 97081"></div>
+              <div class="form-row"><label>Studio Address</label><textarea id="ct_address" placeholder="Full address..."></textarea></div>
+              <div class="form-row"><label>Instagram Handle</label><input type="text" id="ct_insta" placeholder="@mayilbysravani0"></div>
+              <div class="form-row"><label>Google Maps Embed URL</label><input type="text" id="ct_mapUrl" placeholder="Paste embed URL from Google Maps"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="saveContactBtn">💾 Save Contact Info</button>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /app-layout -->
+</div><!-- /adminApp -->
+
+<div id="mobileOverlay" class="mobile-overlay"></div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+// ── FIREBASE CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyChoHOzb3nbZ0BNcWr5X28ttHpXEexTLW0",
+  authDomain: "mayil-studio.firebaseapp.com",
+  projectId: "mayil-studio",
+  storageBucket: "mayil-studio.firebasestorage.app",
+  messagingSenderId: "929821476998",
+  appId: "1:929821476998:web:b3a759759dfee5006ee907"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ── TOAST ──
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = '', 2800);
+}
+
+// ── AUTH ──
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.textContent = 'Wrong email or password. Please try again.';
+    btn.innerHTML = 'Sign In';
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+  document.getElementById('loginScreen').style.display = user ? 'none' : 'flex';
+  document.getElementById('adminApp').style.display = user ? 'block' : 'none';
+  if (user) initApp();
+});
+
+// ── NAVIGATION ──
+const pages = document.querySelectorAll('.page');
+const navBtns = document.querySelectorAll('.nav-btn');
+window.goTo = function(pageId) {
+  pages.forEach(p => p.classList.remove('active'));
+  navBtns.forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  const btn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
+  if (btn) btn.classList.add('active');
+  const title = btn ? btn.textContent.trim() : pageId;
+  document.getElementById('mobilePageTitle').textContent = title;
+  closeSidebar();
+  document.getElementById('mainArea').scrollTop = 0;
+};
+
+navBtns.forEach(btn => {
+  btn.addEventListener('click', () => goTo(btn.dataset.page));
+});
+
+// Mobile sidebar
+const hamburger = document.getElementById('hamburger');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('mobileOverlay');
+function openSidebar() { sidebar.classList.add('mobile-open'); overlay.classList.add('open'); }
+function closeSidebar() { sidebar.classList.remove('mobile-open'); overlay.classList.remove('open'); }
+hamburger.addEventListener('click', openSidebar);
+overlay.addEventListener('click', closeSidebar);
+
+// ── IMAGE SECTION BUILDER ──
+function buildImageSection(containerId, sectionKey, opts = {}) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div><h3>${opts.title || 'Photos'}</h3><p>${opts.desc || 'Upload and manage images'}</p></div>
+        <span id="${sectionKey}-count" style="font-size:0.8rem;color:var(--muted)">0 photos</span>
+      </div>
+      <div class="card-body">
+        <div class="img-grid" id="${sectionKey}-grid">
+          <div class="img-empty">No photos yet. Upload your first image below!</div>
+        </div>
+        <div class="upload-zone" id="${sectionKey}-zone">
+          <input type="file" id="${sectionKey}-input" accept="image/*" multiple>
+          <div class="uz-icon">📸</div>
+          <p><strong>Tap to upload photos</strong></p>
+          <p>or drag and drop images here</p>
+        </div>
+        <div class="progress-list" id="${sectionKey}-progress"></div>
+      </div>
+    </div>`;
+
+  // Load existing images from Firestore
+  loadSectionImages(sectionKey);
+
+  // Upload on file select
+  document.getElementById(`${sectionKey}-input`).addEventListener('change', e => {
+    uploadFiles(Array.from(e.target.files), sectionKey);
+    e.target.value = '';
+  });
+
+  // Drag & drop
+  const zone = document.getElementById(`${sectionKey}-zone`);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    uploadFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')), sectionKey);
+  });
+}
+
+// ── LOAD IMAGES ──
+const sectionListeners = {};
+function loadSectionImages(sectionKey) {
+  if (sectionListeners[sectionKey]) sectionListeners[sectionKey]();
+  const colRef = collection(db, 'images', sectionKey, 'items');
+  sectionListeners[sectionKey] = onSnapshot(colRef, snap => {
+    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderImageGrid(sectionKey, items);
+  });
+}
+
+function renderImageGrid(sectionKey, items) {
+  const grid = document.getElementById(`${sectionKey}-grid`);
+  const count = document.getElementById(`${sectionKey}-count`);
+  if (!grid) return;
+  if (count) count.textContent = `${items.length} photo${items.length !== 1 ? 's' : ''}`;
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="img-empty">No photos yet. Upload your first image below!</div>';
+    return;
+  }
+  grid.innerHTML = items.map(item => `
+    <div class="img-item" data-id="${item.id}" data-path="${item.path || ''}">
+      <img src="${item.url}" alt="photo" loading="lazy">
+      <button class="img-delete" title="Delete" onclick="deleteImage('${sectionKey}','${item.id}','${item.path || ''}')">✕</button>
+    </div>`).join('');
+}
+
+// ── UPLOAD FILES ──
+async function uploadFiles(files, sectionKey) {
+  const progressList = document.getElementById(`${sectionKey}-progress`);
+  for (const file of files) {
+    const id = Date.now() + '-' + Math.random().toString(36).slice(2,7);
+    const path = `images/${sectionKey}/${id}-${file.name.replace(/\s/g,'_')}`;
+    const storageRef = ref(storage, path);
+
+    // Progress UI
+    const progressId = 'prog-' + id;
+    progressList.insertAdjacentHTML('beforeend', `
+      <div class="progress-item" id="${progressId}">
+        <span>${file.name}</span>
+        <div class="progress-bar"><div class="progress-fill" id="fill-${id}" style="width:0%"></div></div>
+      </div>`);
+
+    const task = uploadBytesResumable(storageRef, file);
+    task.on('state_changed',
+      snap => {
+        const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+        const fill = document.getElementById('fill-' + id);
+        if (fill) fill.style.width = pct + '%';
+      },
+      err => {
+        toast('Upload failed: ' + file.name, 'error');
+        document.getElementById(progressId)?.remove();
+      },
+      async () => {
+        const url = await getDownloadURL(task.snapshot.ref);
+        await addDoc(collection(db, 'images', sectionKey, 'items'), {
+          url, path, name: file.name, createdAt: serverTimestamp()
+        });
+        document.getElementById(progressId)?.remove();
+        toast('✅ ' + file.name + ' uploaded!', 'success');
+      }
+    );
+  }
+}
+
+// ── DELETE IMAGE ──
+window.deleteImage = async function(sectionKey, docId, storagePath) {
+  if (!confirm('Delete this photo?')) return;
+  try {
+    await deleteDoc(doc(db, 'images', sectionKey, 'items', docId));
+    if (storagePath) {
+      try { await deleteObject(ref(storage, storagePath)); } catch(e) {}
+    }
+    toast('Photo deleted', 'success');
+  } catch(e) {
+    toast('Could not delete photo', 'error');
+  }
+};
+
+// ── OCCASIONS ──
+let occListener = null;
+function initOccasions() {
+  const list = document.getElementById('occList');
+  if (occListener) occListener();
+  occListener = onSnapshot(collection(db, 'occasions'), snap => {
+    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (items.length === 0) {
+      list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No occasions yet.</p>';
+      return;
+    }
+    list.innerHTML = items.map(o => `
+      <span class="occ-tag">${o.icon || '✦'} ${o.name}
+        <button onclick="deleteOccasion('${o.id}')">×</button>
+      </span>`).join('');
+  });
+
+  document.getElementById('addOccBtn').addEventListener('click', addOccasion);
+  document.getElementById('occInput').addEventListener('keydown', e => { if(e.key === 'Enter') addOccasion(); });
+}
+
+async function addOccasion() {
+  const input = document.getElementById('occInput');
+  const name = input.value.trim();
+  if (!name) return;
+  await addDoc(collection(db, 'occasions'), { name, icon: '✦', createdAt: serverTimestamp() });
+  input.value = '';
+  toast('Occasion added!', 'success');
+}
+
+window.deleteOccasion = async function(id) {
+  await deleteDoc(doc(db, 'occasions', id));
+  toast('Occasion removed');
+};
+
+// ── SERVICES ──
+let services = {};
+let editingServiceId = null;
+let svcImageData = null;
+
+function initServices() {
+  const list = document.getElementById('serviceList');
+  onSnapshot(collection(db, 'services'), snap => {
+    services = {};
+    snap.docs.forEach(d => { services[d.id] = { id: d.id, ...d.data() }; });
+    renderServices();
+  });
+}
+
+function renderServices() {
+  const list = document.getElementById('serviceList');
+  const items = Object.values(services);
+  if (items.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No services yet. Click "+ New Service" to add one.</p>';
+    return;
+  }
+  list.innerHTML = items.map(s => `
+    <div class="service-item" onclick="editService('${s.id}')">
+      <img src="${s.imageUrl || 'https://via.placeholder.com/300x120?text=No+Image'}" alt="${s.title}">
+      <div class="service-item-body">
+        <h4>${s.title || 'Untitled'}</h4>
+        <p>${(s.desc || '').slice(0, 60)}${(s.desc||'').length > 60 ? '...' : ''}</p>
+      </div>
+    </div>`).join('');
+}
+
+window.editService = function(id) {
+  editingServiceId = id;
+  const s = services[id];
+  document.getElementById('svcTitle').value = s.title || '';
+  document.getElementById('svcDesc').value = s.desc || '';
+  document.getElementById('svcImgPreview').innerHTML = s.imageUrl
+    ? `<img src="${s.imageUrl}" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px">`
+    : '';
+  svcImageData = null;
+  document.getElementById('serviceEditorTitle').textContent = 'Edit Service';
+  document.getElementById('deleteServiceBtn').style.display = '';
+  document.getElementById('serviceEditor').style.display = '';
+  document.getElementById('serviceEditor').scrollIntoView({ behavior: 'smooth' });
+};
+
+document.getElementById('newServiceBtn').addEventListener('click', () => {
+  editingServiceId = null; svcImageData = null;
+  document.getElementById('svcTitle').value = '';
+  document.getElementById('svcDesc').value = '';
+  document.getElementById('svcImgPreview').innerHTML = '';
+  document.getElementById('serviceEditorTitle').textContent = 'New Service';
+  document.getElementById('deleteServiceBtn').style.display = 'none';
+  document.getElementById('serviceEditor').style.display = '';
+  document.getElementById('serviceEditor').scrollIntoView({ behavior: 'smooth' });
+});
+
+document.getElementById('closeServiceEditor').addEventListener('click', () => {
+  document.getElementById('serviceEditor').style.display = 'none';
+});
+
+document.getElementById('svcImgInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  svcImageData = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('svcImgPreview').innerHTML = `<img src="${ev.target.result}" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px">`;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('saveServiceBtn').addEventListener('click', async () => {
+  const title = document.getElementById('svcTitle').value.trim();
+  const desc = document.getElementById('svcDesc').value.trim();
+  if (!title) { toast('Please enter a title', 'error'); return; }
+  const btn = document.getElementById('saveServiceBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+  let imageUrl = editingServiceId ? (services[editingServiceId]?.imageUrl || '') : '';
+  let imagePath = editingServiceId ? (services[editingServiceId]?.imagePath || '') : '';
+
+  if (svcImageData) {
+    const path = `services/${Date.now()}-${svcImageData.name.replace(/\s/g,'_')}`;
+    const task = uploadBytesResumable(ref(storage, path), svcImageData);
+    await new Promise((res, rej) => {
+      task.on('state_changed', null, rej, async () => {
+        imageUrl = await getDownloadURL(task.snapshot.ref);
+        imagePath = path;
+        res();
+      });
+    });
+  }
+
+  const data = { title, desc, imageUrl, imagePath, updatedAt: serverTimestamp() };
+  if (editingServiceId) {
+    await updateDoc(doc(db, 'services', editingServiceId), data);
+  } else {
+    await addDoc(collection(db, 'services'), data);
+  }
+
+  btn.disabled = false; btn.innerHTML = '💾 Save Service';
+  document.getElementById('serviceEditor').style.display = 'none';
+  toast('Service saved!', 'success');
+});
+
+document.getElementById('deleteServiceBtn').addEventListener('click', async () => {
+  if (!editingServiceId || !confirm('Delete this service?')) return;
+  const s = services[editingServiceId];
+  if (s?.imagePath) { try { await deleteObject(ref(storage, s.imagePath)); } catch(e){} }
+  await deleteDoc(doc(db, 'services', editingServiceId));
+  document.getElementById('serviceEditor').style.display = 'none';
+  toast('Service deleted');
+});
+
+// ── TEXT CONTENT ──
+async function loadTextContent() {
+  try {
+    const d = await getDoc(doc(db, 'content', 'main'));
+    if (d.exists()) {
+      const data = d.data();
+      ['heroTitle','heroSub','heroText','stat1','stat2','stat3','stat4'].forEach(k => {
+        const el = document.getElementById('tc_' + k);
+        if (el && data[k]) el.value = data[k];
+      });
+    }
+  } catch(e) {}
+}
+
+document.getElementById('saveTextBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('saveTextBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving...';
+  const data = {};
+  ['heroTitle','heroSub','heroText','stat1','stat2','stat3','stat4'].forEach(k => {
+    const el = document.getElementById('tc_' + k);
+    if (el) data[k] = el.value;
+  });
+  await setDoc(doc(db, 'content', 'main'), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+  btn.disabled = false; btn.innerHTML = '💾 Save All Text';
+  toast('Text content saved!', 'success');
+});
+
+// ── CONTACT ──
+async function loadContact() {
+  try {
+    const d = await getDoc(doc(db, 'content', 'contact'));
+    if (d.exists()) {
+      const data = d.data();
+      ['phone','address','insta','mapUrl'].forEach(k => {
+        const el = document.getElementById('ct_' + k);
+        if (el && data[k]) el.value = data[k];
+      });
+    }
+  } catch(e) {}
+}
+
+document.getElementById('saveContactBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('saveContactBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving...';
+  const data = {};
+  ['phone','address','insta','mapUrl'].forEach(k => {
+    const el = document.getElementById('ct_' + k);
+    if (el) data[k] = el.value;
+  });
+  await setDoc(doc(db, 'content', 'contact'), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+  btn.disabled = false; btn.innerHTML = '💾 Save Contact Info';
+  toast('Contact info saved!', 'success');
+});
+
+// ── DASHBOARD STATS ──
+async function loadDashStats() {
+  const sections = ['slideshow','gallery','featured','clients','location-photos'];
+  const counts = await Promise.all(sections.map(async s => {
+    try {
+      const snap = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')
+        .then(m => m.getDocs(collection(db, 'images', s, 'items')));
+      return snap.size;
+    } catch(e) { return 0; }
+  }));
+  const labels = ['Slideshow','Gallery','Featured','Transformations','Studio'];
+  const container = document.getElementById('dashStats');
+  container.innerHTML = sections.map((s,i) => `
+    <div class="stat-card">
+      <div class="s-val">${counts[i]}</div>
+      <div class="s-lbl">${labels[i]} Photos</div>
+    </div>`).join('');
+}
+
+// ── INIT APP ──
+function initApp() {
+  // Build image sections
+  buildImageSection('sec-slideshow', 'slideshow', {
+    title: 'Hero Slideshow Images',
+    desc: 'Recommended: 1600×900px wide landscape photos'
+  });
+  buildImageSection('sec-gallery', 'gallery', {
+    title: 'Dress Gallery',
+    desc: 'Recommended: 900×900px square photos'
+  });
+  buildImageSection('sec-featured', 'featured', {
+    title: 'Featured Collection',
+    desc: 'Recommended: 900×900px — shows as 4 cards on homepage'
+  });
+  buildImageSection('sec-clients', 'clients', {
+    title: 'Client Transformation Photos',
+    desc: 'Recommended: 800×800px clear client photos'
+  });
+  buildImageSection('sec-location-photos', 'location-photos', {
+    title: 'Studio & Location Photos',
+    desc: 'Recommended: 1200×800px landscape photos'
+  });
+
+  initOccasions();
+  initServices();
+  loadTextContent();
+  loadContact();
+  loadDashStats();
+}
+</script>
+</body>
+</html>
