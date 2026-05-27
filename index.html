@@ -80,39 +80,43 @@
         <div class="section-line"></div>
     </div>
     <div class="collection-grid">
-        <div class="collection-item">
+        <div class="collection-item" data-category="bridal" onclick="openCollectionModal('bridal')" style="cursor:pointer">
             <div class="collection-image">
-                <img src="https://images.unsplash.com/photo-1519657337289-077653f724ed?w=600&q=80" alt="Bridal Collection" loading="lazy">
+                <img id="cover-bridal" src="https://images.unsplash.com/photo-1519657337289-077653f724ed?w=600&q=80" alt="Bridal Collection" loading="lazy">
                 <div class="collection-overlay">
-                    <h3>Bridal Wear</h3>
-                    <p>Elegant designs for your special day</p>
+                    <h3 id="title-bridal">Bridal Wear</h3>
+                    <p id="desc-bridal">Elegant designs for your special day</p>
+                    <span class="view-gallery-btn">View Gallery →</span>
                 </div>
             </div>
         </div>
-        <div class="collection-item">
+        <div class="collection-item" data-category="party" onclick="openCollectionModal('party')" style="cursor:pointer">
             <div class="collection-image">
-                <img src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80" alt="Party Wear Collection" loading="lazy">
+                <img id="cover-party" src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80" alt="Party Wear Collection" loading="lazy">
                 <div class="collection-overlay">
-                    <h3>Party Wear</h3>
-                    <p>Stunning outfits for every celebration</p>
+                    <h3 id="title-party">Party Wear</h3>
+                    <p id="desc-party">Stunning outfits for every celebration</p>
+                    <span class="view-gallery-btn">View Gallery →</span>
                 </div>
             </div>
         </div>
-        <div class="collection-item">
+        <div class="collection-item" data-category="casual" onclick="openCollectionModal('casual')" style="cursor:pointer">
             <div class="collection-image">
-                <img src="https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=600&q=80" alt="Casual Collection" loading="lazy">
+                <img id="cover-casual" src="https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=600&q=80" alt="Casual Collection" loading="lazy">
                 <div class="collection-overlay">
-                    <h3>Casual Wear</h3>
-                    <p>Comfortable yet stylish everyday looks</p>
+                    <h3 id="title-casual">Casual Wear</h3>
+                    <p id="desc-casual">Comfortable yet stylish everyday looks</p>
+                    <span class="view-gallery-btn">View Gallery →</span>
                 </div>
             </div>
         </div>
-        <div class="collection-item">
+        <div class="collection-item" data-category="maternity" onclick="openCollectionModal('maternity')" style="cursor:pointer">
             <div class="collection-image">
-                <img src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=600&q=80" alt="Maternity Collection" loading="lazy">
+                <img id="cover-maternity" src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=600&q=80" alt="Maternity Collection" loading="lazy">
                 <div class="collection-overlay">
-                    <h3>Maternity Wear</h3>
-                    <p>Beautiful designs for expecting mothers</p>
+                    <h3 id="title-maternity">Maternity Wear</h3>
+                    <p id="desc-maternity">Beautiful designs for expecting mothers</p>
+                    <span class="view-gallery-btn">View Gallery →</span>
                 </div>
             </div>
         </div>
@@ -549,6 +553,50 @@
         </div>
     </div>
 </div>
+
+<!-- Collection Gallery Modal -->
+<div id="collectionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;overflow-y:auto;">
+  <div style="max-width:900px;width:95%;margin:20px auto;background:white;border-radius:20px;overflow:hidden;">
+    <div style="padding:24px 28px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;background:#160a18;">
+      <div>
+        <h2 id="modalTitle" style="color:white;font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;"></h2>
+        <p id="modalDesc" style="color:#d9c5d0;font-size:0.9rem;margin-top:4px;font-family:'DM Sans',sans-serif;"></p>
+      </div>
+      <button onclick="closeCollectionModal()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:38px;height:38px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div id="modalGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;padding:16px;min-height:200px;">
+      <p id="modalEmpty" style="grid-column:1/-1;text-align:center;color:#999;padding:40px;font-family:'DM Sans',sans-serif;">No photos uploaded yet for this category.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen Photo Viewer -->
+<div id="photoViewer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:3000;align-items:center;justify-content:center;">
+  <button onclick="closePhotoViewer()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.15);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:1.3rem;cursor:pointer;">✕</button>
+  <button id="viewerPrev" onclick="navigatePhoto(-1)" style="position:absolute;left:20px;background:rgba(255,255,255,0.15);border:none;color:white;width:50px;height:50px;border-radius:50%;font-size:1.5rem;cursor:pointer;">←</button>
+  <img id="viewerImg" src="" alt="" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;">
+  <button id="viewerNext" onclick="navigatePhoto(1)" style="position:absolute;right:20px;background:rgba(255,255,255,0.15);border:none;color:white;width:50px;height:50px;border-radius:50%;font-size:1.5rem;cursor:pointer;">→</button>
+  <div id="viewerCount" style="position:absolute;bottom:20px;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif;font-size:0.85rem;"></div>
+</div>
+
+<style>
+.view-gallery-btn {
+  display:inline-block; margin-top:8px; padding:6px 16px;
+  background:rgba(255,255,255,0.2); color:white; border-radius:20px;
+  font-size:0.8rem; font-family:'DM Sans',sans-serif; letter-spacing:0.5px;
+  backdrop-filter:blur(4px); transition:background 0.2s;
+}
+.collection-item:hover .view-gallery-btn { background:rgba(220,160,200,0.5); }
+#modalGallery img {
+  width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px;
+  cursor:pointer; transition:transform 0.2s, opacity 0.2s;
+}
+#modalGallery img:hover { transform:scale(1.03); }
+@media(max-width:600px){
+  #modalGallery { grid-template-columns:repeat(2,1fr); }
+  #viewerPrev,#viewerNext { width:38px;height:38px;font-size:1.1rem; }
+}
+</style>
 
 <div class="lightbox" id="lightbox" aria-hidden="true">
     <button class="lightbox-close" id="lightbox_close" aria-label="Close preview">×</button>

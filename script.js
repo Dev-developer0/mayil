@@ -6,7 +6,8 @@ import {
   getFirestore,
   collection,
   doc,
-  onSnapshot
+  onSnapshot,
+  getDocs
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── FIREBASE CONFIG ──────────────────────────────────────
@@ -227,6 +228,112 @@ lightbox?.addEventListener('click', e => {
   if (e.target === lightbox) { lightbox.style.display = 'none'; lightbox.setAttribute('aria-hidden', 'true'); }
 });
 
+// ── COLLECTION CATEGORIES ────────────────────────────────
+const CATEGORIES = ['bridal','party','casual','maternity'];
+const collectionPhotos = { bridal:[], party:[], casual:[], maternity:[] };
+
+function loadCollections() {
+  CATEGORIES.forEach(key => {
+    // Load text (title + desc)
+    onSnapshot(doc(db, 'collections', key), d => {
+      if (d.exists()) {
+        const data = d.data();
+        const titleEl = document.getElementById('title-' + key);
+        const descEl  = document.getElementById('desc-' + key);
+        if (titleEl && data.title) titleEl.textContent = data.title;
+        if (descEl  && data.desc)  descEl.textContent  = data.desc;
+      }
+    });
+
+    // Load photos
+    onSnapshot(collection(db, 'collection_photos', key, 'items'), snap => {
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
+      collectionPhotos[key] = items;
+
+      // Update cover image with first photo
+      if (items.length > 0) {
+        const cover = document.getElementById('cover-' + key);
+        if (cover) cover.src = items[0].url;
+      }
+    });
+  });
+}
+
+// Collection modal open/close
+let currentModalPhotos = [];
+let currentPhotoIndex = 0;
+
+window.openCollectionModal = function(key) {
+  const modal = document.getElementById('collectionModal');
+  const title = document.getElementById('title-' + key)?.textContent || key;
+  const desc  = document.getElementById('desc-' + key)?.textContent  || '';
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalDesc').textContent  = desc;
+
+  const photos = collectionPhotos[key] || [];
+  currentModalPhotos = photos;
+  const gallery = document.getElementById('modalGallery');
+  const empty   = document.getElementById('modalEmpty');
+
+  if (photos.length === 0) {
+    gallery.innerHTML = '<p id="modalEmpty" style="grid-column:1/-1;text-align:center;color:#999;padding:40px;font-family:\'DM Sans\',sans-serif;">No photos uploaded yet for this category.</p>';
+  } else {
+    gallery.innerHTML = photos.map((p, i) => `
+      <img src="${p.url}" alt="${p.name||'photo'}" loading="lazy" onclick="openPhotoViewer(${i})">`
+    ).join('');
+  }
+
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeCollectionModal = function() {
+  document.getElementById('collectionModal').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+// Close modal on backdrop click
+document.getElementById('collectionModal')?.addEventListener('click', e => {
+  if (e.target === document.getElementById('collectionModal')) window.closeCollectionModal();
+});
+
+// Photo viewer (full screen)
+window.openPhotoViewer = function(index) {
+  currentPhotoIndex = index;
+  const viewer = document.getElementById('photoViewer');
+  viewer.style.display = 'flex';
+  updatePhotoViewer();
+};
+
+window.closePhotoViewer = function() {
+  document.getElementById('photoViewer').style.display = 'none';
+};
+
+window.navigatePhoto = function(dir) {
+  currentPhotoIndex = (currentPhotoIndex + dir + currentModalPhotos.length) % currentModalPhotos.length;
+  updatePhotoViewer();
+};
+
+function updatePhotoViewer() {
+  const photo = currentModalPhotos[currentPhotoIndex];
+  if (!photo) return;
+  document.getElementById('viewerImg').src = photo.url;
+  document.getElementById('viewerCount').textContent =
+    `${currentPhotoIndex + 1} / ${currentModalPhotos.length}`;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (document.getElementById('photoViewer').style.display === 'flex') {
+    if (e.key === 'ArrowRight') window.navigatePhoto(1);
+    if (e.key === 'ArrowLeft')  window.navigatePhoto(-1);
+    if (e.key === 'Escape') window.closePhotoViewer();
+  } else if (document.getElementById('collectionModal').style.display === 'block') {
+    if (e.key === 'Escape') window.closeCollectionModal();
+  }
+});
+
 // ── FIREBASE REALTIME LISTENERS ───────────────────────────
 function sortByDate(docs) {
   return docs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
@@ -246,6 +353,8 @@ function initListeners() {
   listenImages('location-photos', renderLocationPhotos);
   listenImages('featured',        renderFeatured);
   listenImages('clients',         renderClients);
+
+  loadCollections();
 
   onSnapshot(collection(db, 'occasions'), snap => {
     renderOccasions(snap.docs.map(d => ({ id: d.id, ...d.data() })));

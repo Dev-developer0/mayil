@@ -327,6 +327,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(-
         <button class="nav-btn" data-page="slideshow"><span class="icon">🖼️</span> Hero Slideshow</button>
         <button class="nav-btn" data-page="gallery"><span class="icon">👗</span> Dress Gallery</button>
         <button class="nav-btn" data-page="featured"><span class="icon">⭐</span> Featured</button>
+        <button class="nav-btn" data-page="collections"><span class="icon">👗</span> Collections</button>
         <button class="nav-btn" data-page="clients"><span class="icon">✨</span> Transformations</button>
         <button class="nav-btn" data-page="location-photos"><span class="icon">📍</span> Studio Photos</button>
       </div>
@@ -404,6 +405,96 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(-
       <div class="page" id="page-location-photos">
         <div class="page-header"><div><h1>Studio Photos</h1><p>Photos shown in the location section</p></div></div>
         <div class="page-body"><div id="sec-location-photos"></div></div>
+      </div>
+
+      <!-- COLLECTIONS -->
+      <div class="page" id="page-collections">
+        <div class="page-header"><div><h1>Trending Collections</h1><p>Manage Bridal, Party, Casual & Maternity categories</p></div></div>
+        <div class="page-body">
+
+          <!-- Category Tabs -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <button class="btn btn-primary cat-tab active" data-cat="bridal" onclick="switchCatTab('bridal')">👰 Bridal</button>
+            <button class="btn btn-ghost cat-tab" data-cat="party" onclick="switchCatTab('party')">🎉 Party</button>
+            <button class="btn btn-ghost cat-tab" data-cat="casual" onclick="switchCatTab('casual')">👒 Casual</button>
+            <button class="btn btn-ghost cat-tab" data-cat="maternity" onclick="switchCatTab('maternity')">🤱 Maternity</button>
+          </div>
+
+          <!-- Bridal -->
+          <div class="cat-panel" id="cat-bridal">
+            <div class="card">
+              <div class="card-header"><div><h3>Bridal Wear — Text</h3><p>Edit the title and description shown on the card</p></div>
+                <button class="btn btn-primary btn-sm" onclick="saveCatText('bridal')">💾 Save</button>
+              </div>
+              <div class="card-body">
+                <div class="form-row"><label>Title</label><input type="text" id="cat-title-bridal" placeholder="Bridal Wear"></div>
+                <div class="form-row"><label>Description</label><input type="text" id="cat-desc-bridal" placeholder="Elegant designs for your special day"></div>
+              </div>
+            </div>
+            <div class="card"><div class="card-header"><div><h3>Bridal Wear — Photos</h3><p>Upload multiple photos. First photo becomes the card cover.</p></div><span id="count-bridal" style="font-size:0.8rem;color:var(--muted)">0 photos</span></div>
+              <div class="card-body">
+                <div class="img-grid" id="grid-bridal"></div>
+                <div class="upload-zone"><input type="file" accept="image/*" multiple onchange="uploadCatPhotos('bridal', this.files)"><div class="uz-icon">📸</div><p><strong>Tap to upload</strong> or drag images here</p></div>
+                <div class="progress-list" id="prog-bridal"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Party -->
+          <div class="cat-panel" id="cat-party" style="display:none">
+            <div class="card">
+              <div class="card-header"><div><h3>Party Wear — Text</h3></div><button class="btn btn-primary btn-sm" onclick="saveCatText('party')">💾 Save</button></div>
+              <div class="card-body">
+                <div class="form-row"><label>Title</label><input type="text" id="cat-title-party" placeholder="Party Wear"></div>
+                <div class="form-row"><label>Description</label><input type="text" id="cat-desc-party" placeholder="Stunning outfits for every celebration"></div>
+              </div>
+            </div>
+            <div class="card"><div class="card-header"><div><h3>Party Wear — Photos</h3><p>First photo becomes the card cover.</p></div><span id="count-party" style="font-size:0.8rem;color:var(--muted)">0 photos</span></div>
+              <div class="card-body">
+                <div class="img-grid" id="grid-party"></div>
+                <div class="upload-zone"><input type="file" accept="image/*" multiple onchange="uploadCatPhotos('party', this.files)"><div class="uz-icon">📸</div><p><strong>Tap to upload</strong> or drag images here</p></div>
+                <div class="progress-list" id="prog-party"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Casual -->
+          <div class="cat-panel" id="cat-casual" style="display:none">
+            <div class="card">
+              <div class="card-header"><div><h3>Casual Wear — Text</h3></div><button class="btn btn-primary btn-sm" onclick="saveCatText('casual')">💾 Save</button></div>
+              <div class="card-body">
+                <div class="form-row"><label>Title</label><input type="text" id="cat-title-casual" placeholder="Casual Wear"></div>
+                <div class="form-row"><label>Description</label><input type="text" id="cat-desc-casual" placeholder="Comfortable yet stylish everyday looks"></div>
+              </div>
+            </div>
+            <div class="card"><div class="card-header"><div><h3>Casual Wear — Photos</h3><p>First photo becomes the card cover.</p></div><span id="count-casual" style="font-size:0.8rem;color:var(--muted)">0 photos</span></div>
+              <div class="card-body">
+                <div class="img-grid" id="grid-casual"></div>
+                <div class="upload-zone"><input type="file" accept="image/*" multiple onchange="uploadCatPhotos('casual', this.files)"><div class="uz-icon">📸</div><p><strong>Tap to upload</strong> or drag images here</p></div>
+                <div class="progress-list" id="prog-casual"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maternity -->
+          <div class="cat-panel" id="cat-maternity" style="display:none">
+            <div class="card">
+              <div class="card-header"><div><h3>Maternity Wear — Text</h3></div><button class="btn btn-primary btn-sm" onclick="saveCatText('maternity')">💾 Save</button></div>
+              <div class="card-body">
+                <div class="form-row"><label>Title</label><input type="text" id="cat-title-maternity" placeholder="Maternity Wear"></div>
+                <div class="form-row"><label>Description</label><input type="text" id="cat-desc-maternity" placeholder="Beautiful designs for expecting mothers"></div>
+              </div>
+            </div>
+            <div class="card"><div class="card-header"><div><h3>Maternity Wear — Photos</h3><p>First photo becomes the card cover.</p></div><span id="count-maternity" style="font-size:0.8rem;color:var(--muted)">0 photos</span></div>
+              <div class="card-body">
+                <div class="img-grid" id="grid-maternity"></div>
+                <div class="upload-zone"><input type="file" accept="image/*" multiple onchange="uploadCatPhotos('maternity', this.files)"><div class="uz-icon">📸</div><p><strong>Tap to upload</strong> or drag images here</p></div>
+                <div class="progress-list" id="prog-maternity"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       <!-- SERVICES -->
@@ -968,7 +1059,86 @@ function initApp() {
   loadTextContent();
   loadContact();
   loadDashStats();
+  CAT_KEYS.forEach(loadCategoryData);
 }
+
+// ── COLLECTIONS ──────────────────────────────────────────
+const CAT_KEYS = ['bridal','party','casual','maternity'];
+
+window.switchCatTab = function(key) {
+  CAT_KEYS.forEach(k => {
+    document.getElementById('cat-' + k).style.display = k === key ? 'block' : 'none';
+    const btn = document.querySelector(`.cat-tab[data-cat="${k}"]`);
+    if (btn) btn.className = k === key ? 'btn btn-primary cat-tab' : 'btn btn-ghost cat-tab';
+  });
+};
+
+window.saveCatText = async function(key) {
+  const title = document.getElementById('cat-title-' + key)?.value.trim();
+  const desc  = document.getElementById('cat-desc-' + key)?.value.trim();
+  if (!title) { toast('Please enter a title', 'error'); return; }
+  await setDoc(doc(db, 'collections', key), { title, desc, updatedAt: serverTimestamp() }, { merge: true });
+  toast('✅ ' + key + ' text saved!', 'success');
+};
+
+window.uploadCatPhotos = async function(key, files) {
+  const progressList = document.getElementById('prog-' + key);
+  for (const file of Array.from(files)) {
+    const id   = Date.now() + '-' + Math.random().toString(36).slice(2,7);
+    const path = `collection_photos/${key}/${id}-${file.name.replace(/\s/g,'_')}`;
+    const sRef = ref(storage, path);
+    const pid  = 'p-' + id;
+    progressList.insertAdjacentHTML('beforeend', `
+      <div class="progress-item" id="${pid}">
+        <span>${file.name}</span>
+        <div class="progress-bar"><div class="progress-fill" id="f-${id}" style="width:0%"></div></div>
+      </div>`);
+    const task = uploadBytesResumable(sRef, file);
+    task.on('state_changed',
+      snap => { const f = document.getElementById('f-'+id); if(f) f.style.width = Math.round(snap.bytesTransferred/snap.totalBytes*100)+'%'; },
+      () => { toast('Upload failed: '+file.name,'error'); document.getElementById(pid)?.remove(); },
+      async () => {
+        const url = await getDownloadURL(task.snapshot.ref);
+        await addDoc(collection(db,'collection_photos',key,'items'), { url, path, name:file.name, createdAt:serverTimestamp() });
+        document.getElementById(pid)?.remove();
+        toast('✅ '+file.name+' uploaded!','success');
+      }
+    );
+  }
+};
+
+function loadCategoryData(key) {
+  onSnapshot(doc(db,'collections',key), d => {
+    if (d.exists()) {
+      const data = d.data();
+      const t  = document.getElementById('cat-title-'+key);
+      const de = document.getElementById('cat-desc-'+key);
+      if (t  && data.title) t.value  = data.title;
+      if (de && data.desc)  de.value = data.desc;
+    }
+  });
+  onSnapshot(collection(db,'collection_photos',key,'items'), snap => {
+    const items = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    const grid  = document.getElementById('grid-'+key);
+    const count = document.getElementById('count-'+key);
+    if (count) count.textContent = items.length + ' photo' + (items.length!==1?'s':'');
+    if (!grid) return;
+    if (items.length===0) { grid.innerHTML='<div class="img-empty">No photos yet.</div>'; return; }
+    grid.innerHTML = items.map(item=>`
+      <div class="img-item">
+        <img src="${item.url}" alt="${item.name||''}" loading="lazy">
+        <button class="img-delete" onclick="deleteCatPhoto('${key}','${item.id}','${(item.path||'').replace(/'/g,"\\'")}')">✕</button>
+      </div>`).join('');
+  });
+}
+
+window.deleteCatPhoto = async function(key,docId,storagePath) {
+  if (!confirm('Delete this photo?')) return;
+  await deleteDoc(doc(db,'collection_photos',key,'items',docId));
+  if (storagePath) { try { await deleteObject(ref(storage,storagePath)); } catch(e){} }
+  toast('Photo deleted');
+};
 </script>
 </body>
 </html>
