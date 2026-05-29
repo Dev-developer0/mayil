@@ -228,34 +228,44 @@ lightbox?.addEventListener('click', e => {
   if (e.target === lightbox) { lightbox.style.display = 'none'; lightbox.setAttribute('aria-hidden', 'true'); }
 });
 
-// ── COLLECTION CATEGORIES ────────────────────────────────
-const CATEGORIES = ['bridal','party','casual','maternity'];
-const collectionPhotos = { bridal:[], party:[], casual:[], maternity:[] };
+// ── COLLECTION CATEGORIES (DYNAMIC) ─────────────────────
+const collectionPhotos = {};
 
 function loadCollections() {
-  CATEGORIES.forEach(key => {
-    // Load text (title + desc)
-    onSnapshot(doc(db, 'collections', key), d => {
-      if (d.exists()) {
-        const data = d.data();
-        const titleEl = document.getElementById('title-' + key);
-        const descEl  = document.getElementById('desc-' + key);
-        if (titleEl && data.title) titleEl.textContent = data.title;
-        if (descEl  && data.desc)  descEl.textContent  = data.desc;
-      }
-    });
+  const grid = document.getElementById('collectionGrid');
 
-    // Load photos
-    onSnapshot(collection(db, 'collection_photos', key, 'items'), snap => {
-      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
-      collectionPhotos[key] = items;
+  // Listen to categories collection — renders cards dynamically
+  onSnapshot(collection(db, 'categories'), snap => {
+    const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
 
-      // Update cover image with first photo
-      if (items.length > 0) {
-        const cover = document.getElementById('cover-' + key);
-        if (cover) cover.src = items[0].url;
-      }
+    if (!grid) return;
+
+    if (cats.length === 0) {
+      grid.innerHTML = '';
+      return;
+    }
+
+    // Render collection cards
+    grid.innerHTML = cats.map(cat => `
+      <div class="collection-item" onclick="openCollectionModal('${cat.id}')" style="cursor:pointer">
+        <div class="collection-image">
+          <img id="cover-${cat.id}" src="${cat.coverUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80'}" alt="${cat.title}" loading="lazy">
+          <div class="collection-overlay">
+            <h3>${cat.title}</h3>
+            <p>${cat.desc || ''}</p>
+            <span class="view-gallery-btn">View Gallery →</span>
+          </div>
+        </div>
+      </div>`).join('');
+
+    // Load photos for each category
+    cats.forEach(cat => {
+      onSnapshot(collection(db, 'collection_photos', cat.id, 'items'), photoSnap => {
+        const items = photoSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
+        collectionPhotos[cat.id] = items;
+      });
     });
   });
 }
@@ -264,23 +274,26 @@ function loadCollections() {
 let currentModalPhotos = [];
 let currentPhotoIndex = 0;
 
-window.openCollectionModal = function(key) {
+window.openCollectionModal = function(catId) {
   const modal = document.getElementById('collectionModal');
-  const title = document.getElementById('title-' + key)?.textContent || key;
-  const desc  = document.getElementById('desc-' + key)?.textContent  || '';
+  
+  // Get title/desc from DOM (rendered by loadCollections)
+  const card  = document.querySelector(`[onclick="openCollectionModal('${catId}')"]`);
+  const title = card?.querySelector('h3')?.textContent || catId;
+  const desc  = card?.querySelector('p')?.textContent  || '';
+
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalDesc').textContent  = desc;
 
-  const photos = collectionPhotos[key] || [];
+  const photos  = collectionPhotos[catId] || [];
   currentModalPhotos = photos;
   const gallery = document.getElementById('modalGallery');
-  const empty   = document.getElementById('modalEmpty');
 
   if (photos.length === 0) {
-    gallery.innerHTML = '<p id="modalEmpty" style="grid-column:1/-1;text-align:center;color:#999;padding:40px;font-family:\'DM Sans\',sans-serif;">No photos uploaded yet for this category.</p>';
+    gallery.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:40px;font-family:\'DM Sans\',sans-serif;">No photos uploaded yet for this category.</p>';
   } else {
-    gallery.innerHTML = photos.map((p, i) => `
-      <img src="${p.url}" alt="${p.name||'photo'}" loading="lazy" onclick="openPhotoViewer(${i})">`
+    gallery.innerHTML = photos.map((p, i) =>
+      `<img src="${p.url}" alt="${p.name||'photo'}" loading="lazy" onclick="openPhotoViewer(${i})">`
     ).join('');
   }
 
