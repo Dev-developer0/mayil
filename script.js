@@ -103,7 +103,9 @@ function renderGallery(items) {
   if (!grid) return;
   grid.innerHTML = items.length === 0 ? '' : items.map(item => `
     <a href="${item.url}" target="_blank">
-      <img src="${item.url}" loading="lazy" alt="${item.name || 'dress photo'}">
+      <img src="${item.url}" loading="lazy" alt="${item.name || 'dress photo'}"
+        style="opacity:0;transition:opacity 0.4s;"
+        onload="this.style.opacity='1'">
     </a>`).join('');
 }
 
@@ -113,7 +115,9 @@ function renderLocationPhotos(items) {
   if (!container) return;
   container.innerHTML = items.map(item => `
     <div class="picture-item">
-      <img src="${item.url}" loading="lazy" alt="${item.name || 'studio photo'}">
+      <img src="${item.url}" loading="lazy" alt="${item.name || 'studio photo'}"
+        style="opacity:0;transition:opacity 0.4s;"
+        onload="this.style.opacity='1'">
     </div>`).join('');
 }
 
@@ -128,10 +132,26 @@ function renderFeatured(items) {
 
 // ── CLIENT TRANSFORMATIONS ────────────────────────────────
 function renderClients(items) {
-  if (!items.length) return;
-  const imgs = document.querySelectorAll('.gallery-grid .gallery-item img');
-  imgs.forEach((img, i) => {
-    if (items[i]) { img.src = items[i].url; img.alt = items[i].name || img.alt; }
+  const grid = document.querySelector('.gallery-grid');
+  if (!grid) return;
+  if (items.length === 0) {
+    // Hide all demo images — don't show placeholder content
+    grid.querySelectorAll('.gallery-item img').forEach(img => {
+      img.style.opacity = '0';
+    });
+    return;
+  }
+  // Show real images
+  const imgEls = grid.querySelectorAll('.gallery-item img');
+  imgEls.forEach((img, i) => {
+    if (items[i]) {
+      img.style.opacity = '0';
+      img.onload = () => { img.style.transition = 'opacity 0.4s'; img.style.opacity = '1'; };
+      img.src = items[i].url;
+      img.alt = items[i].name || img.alt;
+    } else {
+      img.style.opacity = '0'; // hide unused demo slots
+    }
   });
 }
 
