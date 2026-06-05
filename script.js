@@ -101,6 +101,10 @@ $('.hero-prev')?.addEventListener('click', () => { goToSlide(currentSlide - 1); 
 function renderGallery(items) {
   const grid = $('#gallery_grid');
   if (!grid) return;
+  
+  // Store gallery photos for full collection modal
+  allGalleryPhotos = items;
+  
   grid.innerHTML = items.length === 0 ? '' : items.map(item => `
     <a href="${item.url}" target="_blank">
       <img src="${item.url}" loading="lazy" alt="${item.name || 'dress photo'}"
@@ -126,7 +130,13 @@ function renderFeatured(items) {
   if (!items.length) return;
   const imgs = document.querySelectorAll('.collection-grid .collection-image img');
   imgs.forEach((img, i) => {
-    if (items[i]) { img.src = items[i].url; img.alt = items[i].name || img.alt; }
+    if (items[i]) {
+      img.onload = () => { img.style.opacity = '1'; };
+      img.src = items[i].url;
+      img.alt = items[i].name || img.alt;
+      // In case image is cached and onload already fired
+      if (img.complete) img.style.opacity = '1';
+    }
   });
 }
 
@@ -253,40 +263,49 @@ const collectionPhotos = {};
 
 function loadCollections() {
   const grid = document.getElementById('collectionGrid');
+  if (!grid) return;
 
-  // Listen to categories collection — renders cards dynamically
   onSnapshot(collection(db, 'categories'), snap => {
     const cats = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
 
-    if (!grid) return;
+    if (cats.length === 0) { grid.innerHTML = ''; return; }
 
-    if (cats.length === 0) {
-      grid.innerHTML = '';
-      return;
-    }
-
-    // Render collection cards
     grid.innerHTML = cats.map(cat => `
-      <div class="collection-item" onclick="openCollectionModal('${cat.id}')" style="cursor:pointer">
-        <div class="collection-image">
-          <img id="cover-${cat.id}" src="${cat.coverUrl || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80'}" alt="${cat.title}" loading="lazy">
+      <div class="collection-item"
+        data-catid="${cat.id}"
+        data-title="${(cat.title||'').replace(/"/g,'&quot;')}"
+        data-desc="${(cat.desc||'').replace(/"/g,'&quot;')}"
+        style="cursor:pointer">
+        <div class="collection-image" style="background:#1a0a1a;">
+          <img src="${cat.coverUrl||''}" alt="${cat.title||''}" loading="lazy"
+            style="width:100%;height:100%;object-fit:cover;${cat.coverUrl?'':'display:none'}">
           <div class="collection-overlay">
-            <h3>${cat.title}</h3>
-            <p>${cat.desc || ''}</p>
+            <h3>${cat.title||''}</h3>
+            <p>${cat.desc||''}</p>
             <span class="view-gallery-btn">View Gallery →</span>
           </div>
         </div>
       </div>`).join('');
 
-    // Load photos for each category
     cats.forEach(cat => {
       onSnapshot(collection(db, 'collection_photos', cat.id, 'items'), photoSnap => {
-        const items = photoSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+        collectionPhotos[cat.id] = photoSnap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
           .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
-        collectionPhotos[cat.id] = items;
       });
     });
+  });
+
+  // Event delegation — one listener handles all cards reliably
+  grid.addEventListener('click', e => {
+    const item = e.target.closest('.collection-item[data-catid]');
+    if (!item) return;
+    openCollectionModal(
+      item.dataset.catid,
+      item.dataset.title,
+      item.dataset.desc
+    );
   });
 }
 
@@ -294,32 +313,24 @@ function loadCollections() {
 let currentModalPhotos = [];
 let currentPhotoIndex = 0;
 
-window.openCollectionModal = function(catId) {
+function openCollectionModal(catId, title, desc) {
   const modal = document.getElementById('collectionModal');
-  
-  // Get title/desc from DOM (rendered by loadCollections)
-  const card  = document.querySelector(`[onclick="openCollectionModal('${catId}')"]`);
-  const title = card?.querySelector('h3')?.textContent || catId;
-  const desc  = card?.querySelector('p')?.textContent  || '';
+  if (!modal) { console.error('Modal not found'); return; }
 
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalDesc').textContent  = desc;
+  document.getElementById('modalTitle').textContent = title || '';
+  document.getElementById('modalDesc').textContent  = desc  || '';
 
-  const photos  = collectionPhotos[catId] || [];
+  const photos = collectionPhotos[catId] || [];
   currentModalPhotos = photos;
-  const gallery = document.getElementById('modalGallery');
 
-  if (photos.length === 0) {
-    gallery.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;padding:40px;font-family:\'DM Sans\',sans-serif;">No photos uploaded yet for this category.</p>';
-  } else {
-    gallery.innerHTML = photos.map((p, i) =>
-      `<img src="${p.url}" alt="${p.name||'photo'}" loading="lazy" onclick="openPhotoViewer(${i})">`
-    ).join('');
-  }
+  const gallery = document.getElementById('modalGallery');
+  gallery.innerHTML = photos.length === 0
+    ? '<p style="grid-column:1/-1;text-align:center;color:#999;padding:40px;font-family:\'DM Sans\',sans-serif;">No photos in this category yet.</p>'
+    : photos.map((p, i) => `<img src="${p.url}" alt="photo" loading="lazy" onclick="openPhotoViewer(${i})" style="cursor:pointer">`).join('');
 
   modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
-};
+}
 
 window.closeCollectionModal = function() {
   document.getElementById('collectionModal').style.display = 'none';
@@ -364,8 +375,45 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') window.closePhotoViewer();
   } else if (document.getElementById('collectionModal').style.display === 'block') {
     if (e.key === 'Escape') window.closeCollectionModal();
+  } else if (document.getElementById('fullCollectionModal').classList.contains('open')) {
+    if (e.key === 'Escape') window.closeFullCollectionModal();
   }
 });
+
+// ── FULL COLLECTION MODAL ──────────────────────────────────
+let allGalleryPhotos = [];
+
+window.openFullCollectionModal = function() {
+  const modal = document.getElementById('fullCollectionModal');
+  if (!modal) return;
+  
+  const gallery = document.getElementById('fullGalleryGrid');
+  if (!gallery) return;
+
+  gallery.innerHTML = allGalleryPhotos.length === 0
+    ? '<p style="grid-column:1/-1;text-align:center;color:#ccc;padding:60px;font-family:\'DM Sans\',sans-serif;font-size:1.1rem;">No images uploaded yet. Visit the admin panel to upload dress photos.</p>'
+    : allGalleryPhotos.map((photo, i) => `<img src="${photo.url}" alt="dress photo" loading="lazy" onclick="openCollectionPhotoViewer(${i}, window.allGalleryPhotos, ${i})" style="cursor:pointer">`).join('');
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeFullCollectionModal = function() {
+  const modal = document.getElementById('fullCollectionModal');
+  if (modal) {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+};
+
+// Photo viewer for full collection
+window.openCollectionPhotoViewer = function(index, photos, fromSource) {
+  currentModalPhotos = photos;
+  currentPhotoIndex = index;
+  const viewer = document.getElementById('photoViewer');
+  viewer.style.display = 'flex';
+  updatePhotoViewer();
+};
 
 // ── FIREBASE REALTIME LISTENERS ───────────────────────────
 function sortByDate(docs) {
