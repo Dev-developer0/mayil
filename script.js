@@ -101,10 +101,6 @@ $('.hero-prev')?.addEventListener('click', () => { goToSlide(currentSlide - 1); 
 function renderGallery(items) {
   const grid = $('#gallery_grid');
   if (!grid) return;
-  
-  // Store gallery photos for full collection modal
-  allGalleryPhotos = items;
-  
   grid.innerHTML = items.length === 0 ? '' : items.map(item => `
     <a href="${item.url}" target="_blank">
       <img src="${item.url}" loading="lazy" alt="${item.name || 'dress photo'}"
@@ -141,26 +137,39 @@ function renderFeatured(items) {
 }
 
 // ── CLIENT TRANSFORMATIONS ────────────────────────────────
+let realClientItems = [];
+
 function renderClients(items) {
+  realClientItems = items;
+  renderClientsGrid();
+}
+
+function renderClientsGrid() {
   const grid = document.querySelector('.gallery-grid');
   if (!grid) return;
-  if (items.length === 0) {
-    // Hide all demo images — don't show placeholder content
-    grid.querySelectorAll('.gallery-item img').forEach(img => {
-      img.style.opacity = '0';
-    });
+  const imgEls = grid.querySelectorAll('.gallery-item img');
+
+  // Use real client photos if uploaded, otherwise fall back to collection photos
+  let source = realClientItems;
+  if (source.length === 0) {
+    const pooled = Object.values(collectionPhotos).flat();
+    source = pooled;
+  }
+
+  if (source.length === 0) {
+    imgEls.forEach(img => { img.style.opacity = '0'; });
     return;
   }
-  // Show real images
-  const imgEls = grid.querySelectorAll('.gallery-item img');
+
   imgEls.forEach((img, i) => {
-    if (items[i]) {
+    const item = source[i % source.length]; // loop through pool if fewer photos than slots
+    if (item) {
       img.style.opacity = '0';
       img.onload = () => { img.style.transition = 'opacity 0.4s'; img.style.opacity = '1'; };
-      img.src = items[i].url;
-      img.alt = items[i].name || img.alt;
+      img.src = item.url;
+      img.alt = item.name || img.alt;
     } else {
-      img.style.opacity = '0'; // hide unused demo slots
+      img.style.opacity = '0';
     }
   });
 }
@@ -293,6 +302,7 @@ function loadCollections() {
         collectionPhotos[cat.id] = photoSnap.docs
           .map(d => ({ id: d.id, ...d.data() }))
           .sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0));
+        renderClientsGrid(); // refresh fallback pool if client section still has no real photos
       });
     });
   });
@@ -375,45 +385,8 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') window.closePhotoViewer();
   } else if (document.getElementById('collectionModal').style.display === 'block') {
     if (e.key === 'Escape') window.closeCollectionModal();
-  } else if (document.getElementById('fullCollectionModal').classList.contains('open')) {
-    if (e.key === 'Escape') window.closeFullCollectionModal();
   }
 });
-
-// ── FULL COLLECTION MODAL ──────────────────────────────────
-let allGalleryPhotos = [];
-
-window.openFullCollectionModal = function() {
-  const modal = document.getElementById('fullCollectionModal');
-  if (!modal) return;
-  
-  const gallery = document.getElementById('fullGalleryGrid');
-  if (!gallery) return;
-
-  gallery.innerHTML = allGalleryPhotos.length === 0
-    ? '<p style="grid-column:1/-1;text-align:center;color:#ccc;padding:60px;font-family:\'DM Sans\',sans-serif;font-size:1.1rem;">No images uploaded yet. Visit the admin panel to upload dress photos.</p>'
-    : allGalleryPhotos.map((photo, i) => `<img src="${photo.url}" alt="dress photo" loading="lazy" onclick="openCollectionPhotoViewer(${i}, window.allGalleryPhotos, ${i})" style="cursor:pointer">`).join('');
-
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-};
-
-window.closeFullCollectionModal = function() {
-  const modal = document.getElementById('fullCollectionModal');
-  if (modal) {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-};
-
-// Photo viewer for full collection
-window.openCollectionPhotoViewer = function(index, photos, fromSource) {
-  currentModalPhotos = photos;
-  currentPhotoIndex = index;
-  const viewer = document.getElementById('photoViewer');
-  viewer.style.display = 'flex';
-  updatePhotoViewer();
-};
 
 // ── FIREBASE REALTIME LISTENERS ───────────────────────────
 function sortByDate(docs) {

@@ -220,17 +220,62 @@
     </div>
 </section>
 
+<section class="section" id="dress-gallery">
+    <div class="section-header">
+        <p class="section-tag">✦ Our Gallery ✦</p>
+        <h2>Dress Gallery</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="insta-placeholder" id="gallery_grid">
+        <!-- Gallery populated from Firebase -->
+    </div>
+</section>
+
 <section class="section instagram">
     <div class="section-header">
         <p class="section-tag">✦ Follow Our Journey ✦</p>
         <h2>@mayilbysravani0</h2>
         <div class="section-line"></div>
     </div>
-    <div class="insta-placeholder" id="gallery_grid">
-        <!-- Gallery populated from localStorage photos -->
+    <div style="display:flex; justify-content:center; padding: 10px 0 30px;">
+        <a href="https://instagram.com/mayilbysravani0" class="insta-cta-btn" id="contact_insta_link" target="_blank">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor"/>
+            </svg>
+            <span>Follow on Instagram</span>
+        </a>
     </div>
-    <a href="https://instagram.com/mayilbysravani0" class="insta-link" id="contact_insta_link" target="_blank">→ View Full Collection on Instagram</a>
 </section>
+
+<style>
+#dress-gallery .insta-placeholder img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+}
+.insta-cta-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 34px; border-radius: 50px;
+    background: linear-gradient(135deg, #f9ce34 0%, #ee2a7b 50%, #6228d7 100%);
+    color: white; text-decoration: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.95rem;
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 24px rgba(238,42,123,0.3);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.insta-cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(238,42,123,0.42);
+}
+.insta-cta-btn svg { flex-shrink: 0; }
+@media (max-width: 480px) {
+    .insta-cta-btn { padding: 14px 26px; font-size: 0.88rem; }
+}
+</style>
 
 <section class="section" id="contact">
     <div class="section-header">
