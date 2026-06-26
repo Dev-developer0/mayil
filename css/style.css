@@ -391,20 +391,15 @@ nav ul a:hover::after { width: 100%; }
 .service-card p { color: #666; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; line-height: 1.8; font-weight: 400; }
 
 .occasions { background: white; }
-.occasions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto; }
-.occasion-item { 
-    background: #fff; padding: 35px 25px; text-align: center; border: 1px solid #ddd; 
-    transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1); cursor: pointer;
-    border-radius: 14px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+.occasions-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 1000px; margin: 0 auto; }
+.occasion-card {
+    background: #fdf4f9; padding: 12px 22px; border-radius: 30px;
+    border: 1.5px solid #e8c5d8; display: inline-flex; align-items: center;
+    transition: all 0.25s ease; cursor: default;
 }
-.occasion-item:hover { 
-    background: #f5f5f5; border-color: #ccc; 
-    transform: translateY(-8px);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
-}
-.occasion-item:hover h4 { color: black; }
-.occasion-icon { font-size: 2.5rem; margin-bottom: 15px; }
-.occasion-item h4 { font-size: 0.95rem; color: black; font-family: 'Cormorant Garamond', serif; letter-spacing: 1.5px; transition: color 0.3s; font-weight: 700; }
+.occasion-card:hover { background: #f5e6f0; border-color: #dca0c8; transform: translateY(-2px); }
+.occasion-card h4 { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; color: #2a1530; margin: 0; letter-spacing: 0.2px; }
+.occasion-item { display: none; }
 
 .steps { display: flex; justify-content: center; max-width: 1000px; margin: 0 auto; flex-wrap: wrap; gap: 15px; }
 .step { flex: 1; min-width: 220px; text-align: center; padding: 35px 25px; position: relative; }
@@ -575,7 +570,11 @@ footer p { font-family: 'DM Sans', sans-serif; color: #666; font-size: 0.85rem; 
     .contact-form { padding: 40px 30px; }
     .stats { gap: 50px; padding: 40px 25px; }
     .step:not(:last-child)::after { display: none; }
-    .steps { flex-direction: column; }
+    .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; flex-direction: unset; }
+    .step { min-width: unset; padding: 24px 16px; }
+    .step-number { width: 52px; height: 52px; font-size: 1.1rem; margin-bottom: 12px; }
+    .step h4 { font-size: 0.95rem; }
+    .step p { font-size: 0.8rem; }
     .location-content { grid-template-columns: 1fr; gap: 40px; }
     .location-map iframe { height: 350px; }
     .pictures-grid { grid-template-columns: repeat(2, 1fr); }
@@ -606,13 +605,12 @@ footer p { font-family: 'DM Sans', sans-serif; color: #666; font-size: 0.85rem; 
     .section { padding: 50px 18px; }
     .section h2 { font-size: 1.8rem; }
     .section-tag { font-size: 0.7rem; }
-    .services-grid { gap: 20px; }
-    .service-card { padding: 30px 20px; }
-    .service-icon { font-size: 2.5rem; margin-bottom: 15px; }
-    .service-card h3 { font-size: 1.1rem; }
-    .service-card p { font-size: 0.85rem; }
-    .occasions-grid { gap: 18px; }
-    .occasion-item { padding: 25px 18px; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .service-card { padding: 24px 14px; }
+    .service-icon { font-size: 2rem; margin-bottom: 14px; }
+    .service-card h3 { font-size: 1rem; }
+    .service-card p { font-size: 0.8rem; line-height: 1.6; }
+    .occasions-grid { gap: 10px; }
     .collection-grid { gap: 20px; }
     .collection-overlay h3 { font-size: 1.1rem; }
     .collection-overlay p { font-size: 0.8rem; }
