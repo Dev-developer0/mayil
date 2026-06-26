@@ -86,7 +86,6 @@
     </div>
     <!-- Dot indicators — loaded from Firebase -->
     <div class="hero-dots"></div>
-    </div>
     <!-- Prev / Next arrows -->
     <button class="hero-arrow hero-prev" aria-label="Previous slide">&#8592;</button>
     <button class="hero-arrow hero-next" aria-label="Next slide">&#8594;</button>
@@ -220,23 +219,13 @@
     </div>
 </section>
 
-<section class="section" id="dress-gallery">
-    <div class="section-header">
-        <p class="section-tag">✦ Our Gallery ✦</p>
-        <h2>Dress Gallery</h2>
-        <div class="section-line"></div>
-    </div>
-    <div class="insta-placeholder" id="gallery_grid">
-        <!-- Gallery populated from Firebase -->
-    </div>
-</section>
-
 <section class="section instagram">
     <div class="section-header">
         <p class="section-tag">✦ Follow Our Journey ✦</p>
         <h2>@mayilbysravani0</h2>
         <div class="section-line"></div>
     </div>
+    <div class="insta-placeholder" id="gallery_grid" style="max-width:950px;margin:0 auto 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
     <div style="display:flex; justify-content:center; padding: 10px 0 30px;">
         <a href="https://instagram.com/mayilbysravani0" class="insta-cta-btn" id="contact_insta_link" target="_blank">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -336,256 +325,9 @@
     <p style="margin-top: 8px;">Rental Dress Vizag · Custom Designing · Pre & Post Wedding · Maternity Shoots</p>
 </footer>
 
-<!-- Admin toggle button (small) -->
-<div class="admin-toggle" id="admin_toggle" title="Admin">
+<!-- Admin toggle → opens admin.html -->
+<div class="admin-toggle" id="admin_toggle" title="Admin Panel" onclick="window.location.href='admin.html'" style="cursor:pointer">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" fill="#c9a84c"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06A2 2 0 0 1 2.3 17.88l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.65 0 1.23-.39 1.5-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 0 1 6.12 2.3l.06.06a1.65 1.65 0 0 0 1.82.33H8a1.65 1.65 0 0 0 1-1.5V2a2 2 0 1 1 4 0v.09c0 .57.37 1.09 1 1.5h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06A2 2 0 0 1 21.7 6.12l-.06.06a1.65 1.65 0 0 0-.33 1.82V8c.65.27 1 0 1 0H21a2 2 0 1 1 0 4h-.09c-.57 0-1.09.37-1.5 1z" fill="#c9a84c"/></svg>
-</div>
-
-<!-- Admin panel -->
-<div class="admin-panel" id="admin_panel">
-    <div class="admin-card">
-        <div class="admin-header">
-            <div>
-                <div class="admin-title">Mayil Admin</div>
-                <div style="color:#e8dcc6; font-size:0.9rem">Manage site — changes saved locally</div>
-            </div>
-            <button class="btn admin-panel-close" id="admin_panel_close_btn" aria-label="Close admin panel">Close</button>
-        </div>
-        <div class="admin-body">
-            <div class="admin-nav" id="admin_nav">
-                <button data-tab="login" id="nav_login">Login</button>
-                <button data-tab="photos" id="nav_photos">Photos</button>
-                <button data-tab="location" id="nav_location">Location Photos</button>
-                <button data-tab="hero" id="nav_hero">Slideshow</button>
-                <button data-tab="featured" id="nav_featured">Featured</button>
-                <button data-tab="services" id="nav_services">Services</button>
-                <button data-tab="clients" id="nav_clients">Client Transformations</button>
-                <button data-tab="content" id="nav_content">Content</button>
-                <button data-tab="contact" id="nav_contact">Contact</button>
-                <button data-tab="occasions" id="nav_occasions">Occasions</button>
-                <button data-tab="about" id="nav_about">About</button>
-                <button data-tab="logout" id="nav_logout" style="color:#c9a84c; display:none;">Logout</button>
-            </div>
-            <div class="admin-panel-section" id="admin_section">
-                <!-- login -->
-                <div id="admin_login" class="admin-subsection login-box">
-                    <h3 style="color:#c9a84c; margin-bottom:10px;">Admin Login</h3>
-                    <input type="password" id="admin_pass" placeholder="Enter password">
-                    <div style="display:flex; gap:8px;"><button class="btn" id="admin_login_btn">Login</button><button class="btn" id="admin_close_btn">Close</button></div>
-                    <p style="font-size:0.8rem; color:#bba87a; margin-top:10px;">Tip: password is provided by developer.</p>
-                </div>
-
-                <!-- photos -->
-                <div id="admin_photos" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Dress Photos</h3>
-                    <div class="field">
-                        <label>Upload Photos</label>
-                        <div class="upload-note">Recommended upload size: 800×1000 px. Use portrait or square gallery images.</div>
-                        <div class="drop-zone" data-collection="gallery">
-                            <input type="file" id="photo_input" accept="image/*" multiple>
-                            <span>Drag & drop images here, or click to browse</span>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Paste Image URL</label>
-                        <div class="upload-row">
-                            <input type="text" id="photo_url_input" placeholder="Paste image URL">
-                            <button class="btn btn-secondary" id="photo_url_add">Add Image URL</button>
-                        </div>
-                        <div class="image-preview" id="photo_url_preview"></div>
-                    </div>
-                    <div class="field">
-                        <label>Uploaded</label>
-                        <div class="thumbs" id="photo_thumbs"></div>
-                    </div>
-                    <div class="field"><button class="btn" id="photo_clear">Clear All Photos</button></div>
-                </div>
-
-                <!-- location photos -->
-                <div id="admin_location" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Studio & Location Photos</h3>
-                    <div class="field">
-                        <label>Upload Location Photos</label>
-                        <div class="upload-note">Recommended upload size: 1400×800 px. Use landscape images for clean map and location layout.</div>
-                        <div class="drop-zone" data-collection="location">
-                            <input type="file" id="location_photo_input" accept="image/*" multiple>
-                            <span>Drag & drop images here, or click to browse</span>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Paste Image URL</label>
-                        <div class="upload-row">
-                            <input type="text" id="location_url_input" placeholder="Paste image URL">
-                            <button class="btn btn-secondary" id="location_url_add">Add Image URL</button>
-                        </div>
-                        <div class="image-preview" id="location_url_preview"></div>
-                    </div>
-                    <div class="field">
-                        <label>Uploaded Photos</label>
-                        <div class="thumbs" id="location_photo_thumbs"></div>
-                    </div>
-                    <div class="field"><button class="btn" id="location_photo_clear">Clear All Photos</button></div>
-                </div>
-
-                <!-- hero slideshow -->
-                <div id="admin_hero" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Hero Slideshow Images</h3>
-                    <div class="field">
-                        <label>Upload Slideshow Images</label>
-                        <div class="upload-note">Recommended upload size: 1920×1080 px. Use high-quality wide images for the hero slider.</div>
-                        <div class="drop-zone" data-collection="hero">
-                            <input type="file" id="hero_photo_input" accept="image/*" multiple>
-                            <span>Drag & drop images here, or click to browse</span>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Paste Image URL</label>
-                        <div class="upload-row">
-                            <input type="text" id="hero_url_input" placeholder="Paste image URL">
-                            <button class="btn btn-secondary" id="hero_url_add">Add Image URL</button>
-                        </div>
-                        <div class="image-preview" id="hero_url_preview"></div>
-                    </div>
-                    <div class="field">
-                        <label>Slide Images</label>
-                        <div class="thumbs" id="hero_photo_thumbs"></div>
-                    </div>
-                    <div class="field"><button class="btn" id="hero_photo_clear">Clear All Slideshow</button></div>
-                </div>
-
-                <!-- featured collection -->
-                <div id="admin_featured" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Featured Collection Images</h3>
-                    <div class="field">
-                        <label>Upload Featured Images</label>
-                        <div class="upload-note">Recommended upload size: 900×900 px. Use bright, crisp images for the featured collection cards.</div>
-                        <div class="drop-zone" data-collection="featured">
-                            <input type="file" id="featured_photo_input" accept="image/*" multiple>
-                            <span>Drag & drop images here, or click to browse</span>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Paste Image URL</label>
-                        <div class="upload-row">
-                            <input type="text" id="featured_url_input" placeholder="Paste image URL">
-                            <button class="btn btn-secondary" id="featured_url_add">Add Image URL</button>
-                        </div>
-                        <div class="image-preview" id="featured_url_preview"></div>
-                    </div>
-                    <div class="field">
-                        <label>Featured Images</label>
-                        <div class="thumbs" id="featured_photo_thumbs"></div>
-                    </div>
-                    <div class="field"><button class="btn" id="featured_photo_clear">Clear All Featured</button></div>
-                </div>
-
-                <!-- client transformations -->
-                <div id="admin_clients" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Client Transformation Images</h3>
-                    <div class="field">
-                        <label>Upload Client Transformation Images</label>
-                        <div class="upload-note">Recommended upload size: 800×800 px. Use clear client photos that show before and after styling.</div>
-                        <div class="drop-zone" data-collection="clients">
-                            <input type="file" id="client_photo_input" accept="image/*" multiple>
-                            <span>Drag & drop images here, or click to browse</span>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Paste Image URL</label>
-                        <div class="upload-row">
-                            <input type="text" id="client_url_input" placeholder="Paste image URL">
-                            <button class="btn btn-secondary" id="client_url_add">Add Image URL</button>
-                        </div>
-                        <div class="image-preview" id="client_url_preview"></div>
-                    </div>
-                    <div class="field">
-                        <label>Uploaded Client Images</label>
-                        <div class="thumbs" id="client_photo_thumbs"></div>
-                    </div>
-                    <div class="field"><button class="btn" id="client_photo_clear">Clear All Client Images</button></div>
-                </div>
-
-                <!-- content -->
-                <div id="admin_content" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Text Content</h3>
-                    <div class="field"><label>Hero Title</label><input type="text" id="edit_hero_title"></div>
-                    <div class="field"><label>Hero Subtitle</label><input type="text" id="edit_hero_sub"></div>
-                    <div class="field"><label>Hero Text</label><textarea id="edit_hero_text"></textarea></div>
-                    <div class="field"><label>Service 1 Title</label><input type="text" id="edit_service1_title"></div>
-                    <div class="field"><label>Service 1 Description</label><textarea id="edit_service1_desc"></textarea></div>
-                    <div class="field"><label>Service 2 Title</label><input type="text" id="edit_service2_title"></div>
-                    <div class="field"><label>Service 2 Description</label><textarea id="edit_service2_desc"></textarea></div>
-                    <div class="field"><label>Service 3 Title</label><input type="text" id="edit_service3_title"></div>
-                    <div class="field"><label>Service 3 Description</label><textarea id="edit_service3_desc"></textarea></div>
-                    <div class="field"><label>Service 4 Title</label><input type="text" id="edit_service4_title"></div>
-                    <div class="field"><label>Service 4 Description</label><textarea id="edit_service4_desc"></textarea></div>
-                    <div class="field"><button class="btn" id="save_content">Save Content</button></div>
-                </div>
-
-                <div id="admin_services" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Services Manager</h3>
-                    <div class="field">
-                        <label>Select service</label>
-                        <select id="service_select"><option value="">+ New service</option></select>
-                    </div>
-                    <div class="field">
-                        <label>Title</label>
-                        <input type="text" id="service_title" placeholder="Service title">
-                    </div>
-                    <div class="field">
-                        <label>Description</label>
-                        <textarea id="service_desc" placeholder="Service details"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Upload Service Image</label>
-                        <div class="upload-note">Recommended upload size: 600×600 px. Use clean service imagery for each card.</div>
-                        <div class="drop-zone" data-collection="service-image">
-                            <input type="file" id="service_image_input" accept="image/*">
-                            <span>Drag & drop an image here, or click to browse</span>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label>Paste Image URL</label>
-                        <div class="upload-row">
-                            <input type="text" id="service_url_input" placeholder="Paste image URL">
-                            <button class="btn btn-secondary" id="service_url_add">Preview URL</button>
-                        </div>
-                        <div class="image-preview" id="service_image_preview"></div>
-                    </div>
-                    <div class="field">
-                        <button class="btn" id="save_service_btn">Save Service</button>
-                        <button class="btn btn-secondary" id="delete_service_btn">Delete Service</button>
-                    </div>
-                </div>
-
-                <div id="admin_contact" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Contact & Info</h3>
-                    <div class="field"><label>Phone</label><input type="tel" id="edit_contact_phone"></div>
-                    <div class="field"><label>Address (HTML allowed)</label><textarea id="edit_contact_address"></textarea></div>
-                    <div class="field"><label>Instagram Handle/Link</label><input type="text" id="edit_contact_insta"></div>
-                    <div class="field"><label>Stats - Clients</label><input type="text" id="edit_stat1"></div>
-                    <div class="field"><label>Stats - Collection</label><input type="text" id="edit_stat2"></div>
-                    <div class="field"><label>Stats - Walk-in</label><input type="text" id="edit_stat3"></div>
-                    <div class="field"><label>Stats - Location</label><input type="text" id="edit_stat4"></div>
-                    <div class="field"><button class="btn" id="save_contact">Save Contact</button></div>
-                </div>
-
-                <!-- occasions -->
-                <div id="admin_occasions" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Occasions</h3>
-                    <div class="field"><label>Add Occasion</label><input type="text" id="new_occasion_input"></div>
-                    <div class="field"><button class="btn" id="add_occasion">Add</button></div>
-                    <div class="field"><label>Existing</label><div id="occasions_admin_list"></div></div>
-                </div>
-
-                <div id="admin_about" class="admin-subsection" style="display:none;">
-                    <h3 style="color:#c9a84c; margin-bottom:8px;">Other</h3>
-                    <div class="field"><label>Footer Copyright</label><input type="text" id="edit_footer_copy"></div>
-                    <div class="field"><button class="btn" id="save_about">Save</button></div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="lightbox" id="lightbox" aria-hidden="true">

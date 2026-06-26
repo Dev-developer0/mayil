@@ -101,10 +101,12 @@ $('.hero-prev')?.addEventListener('click', () => { goToSlide(currentSlide - 1); 
 function renderGallery(items) {
   const grid = $('#gallery_grid');
   if (!grid) return;
-  grid.innerHTML = items.length === 0 ? '' : items.map(item => `
-    <a href="${item.url}" target="_blank">
+  if (items.length === 0) { grid.style.display = 'none'; return; }
+  grid.style.display = 'grid';
+  grid.innerHTML = items.map(item => `
+    <a href="${item.url}" target="_blank" style="display:block;aspect-ratio:1;overflow:hidden;border-radius:8px;">
       <img src="${item.url}" loading="lazy" alt="${item.name || 'dress photo'}"
-        style="opacity:0;transition:opacity 0.4s;"
+        style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.4s;"
         onload="this.style.opacity='1'">
     </a>`).join('');
 }
