@@ -52,25 +52,17 @@ let slideTimer = null;
 
 function renderHeroSlides(items) {
   const slideContainer = $('.hero-slides');
-  const dotContainer = $('.hero-dots');
-  if (!slideContainer || !dotContainer || !items.length) return;
+  if (!slideContainer || !items.length) return;
 
   slideItems = items;
   currentSlide = 0;
   slideContainer.innerHTML = '';
-  dotContainer.innerHTML = '';
 
   items.forEach((item, index) => {
     const slide = document.createElement('div');
     slide.className = `hero-slide${index === 0 ? ' active' : ''}`;
     slide.style.backgroundImage = `url('${item.url}')`;
     slideContainer.appendChild(slide);
-
-    const dot = document.createElement('span');
-    dot.className = `hero-dot${index === 0 ? ' active' : ''}`;
-    dot.dataset.index = index;
-    dot.addEventListener('click', () => { goToSlide(index); resetTimer(); });
-    dotContainer.appendChild(dot);
   });
 
   resetTimer();
@@ -78,13 +70,10 @@ function renderHeroSlides(items) {
 
 function goToSlide(index) {
   const slideEls = document.querySelectorAll('.hero-slide');
-  const dotEls = document.querySelectorAll('.hero-dot');
   if (!slideEls.length) return;
   slideEls[currentSlide]?.classList.remove('active');
-  dotEls[currentSlide]?.classList.remove('active');
   currentSlide = ((index % slideItems.length) + slideItems.length) % slideItems.length;
   slideEls[currentSlide]?.classList.add('active');
-  dotEls[currentSlide]?.classList.add('active');
 }
 
 function resetTimer() {
@@ -93,9 +82,6 @@ function resetTimer() {
     slideTimer = setInterval(() => goToSlide(currentSlide + 1), 4500);
   }
 }
-
-$('.hero-next')?.addEventListener('click', () => { goToSlide(currentSlide + 1); resetTimer(); });
-$('.hero-prev')?.addEventListener('click', () => { goToSlide(currentSlide - 1); resetTimer(); });
 
 // ── DRESS GALLERY ─────────────────────────────────────────
 function renderGallery(items) {
